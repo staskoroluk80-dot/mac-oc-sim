@@ -4,7 +4,216 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>macOS Air 2024 Simulation</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        /* macOS Air 2024 Simulation – refined Dock + Desktop icons */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: radial-gradient(circle at 40% 30%, #4356a6, #24264e 80%);
+            min-height: 100vh;
+            overflow: hidden;
+            color: rgba(255, 255, 255, 0.9);
+            user-select: none;
+            opacity: 1;
+        }
+
+        /* === Меню === */
+        #menubar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 18px;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.92);
+            background-color: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(45px) saturate(180%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+            z-index: 1000;
+            box-sizing: border-box;
+        }
+
+        #menubar .left-side, #menubar .right-side {
+            display: flex;
+            align-items: center;
+        }
+
+        #menubar nav span {
+            margin-right: 16px;
+            cursor: default;
+            padding: 3px 8px;
+            border-radius: 6px;
+            transition: background-color 0.15s ease;
+        }
+        #menubar nav span:hover { 
+            background-color: rgba(255, 255, 255, 0.15); 
+        }
+
+        .apple-logo {
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .app-name {
+            font-weight: 600;
+            margin-right: 16px;
+        }
+
+        /* === Робочий стіл === */
+        #desktop {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, 90px);
+            grid-auto-rows: 90px;
+            gap: 15px;
+            padding: 60px 20px;
+            justify-content: start;
+            min-height: calc(100vh - 120px);
+            margin-top: 32px;
+        }
+
+        .desktop-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+            cursor: default;
+            transition: transform 0.2s;
+            position: relative;
+            width: 90px;
+            height: 90px;
+        }
+        .desktop-icon:hover {
+            transform: scale(1.05);
+        }
+
+        .icon-emoji {
+            font-size: 42px;
+            margin-bottom: 5px;
+        }
+
+        .icon-label {
+            font-size: 13px;
+            color: #fff;
+            opacity: 0.9;
+            text-align: center;
+            margin-top: 5px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+            max-width: 90px;
+            word-wrap: break-word;
+            line-height: 1.2;
+        }
+
+        /* === Dock === */
+        #dock {
+            position: fixed;
+            bottom: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: flex-end;
+            padding: 12px 18px;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(45px) saturate(180%);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.25);
+            transition: all 0.3s ease;
+            z-index: 999;
+        }
+
+        .dock-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 6px;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.3s cubic-bezier(.22,.61,.36,1);
+        }
+
+        .icon-shape {
+            width: 58px;
+            height: 58px;
+            border-radius: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+            overflow: hidden;
+            transition: all 0.25s ease;
+        }
+
+        .dock-item:hover { 
+            transform: translateY(-10px) scale(1.12); 
+        }
+
+        .dock-item.active { 
+            transform: translateY(-5px) scale(1.05); 
+        }
+
+        .dock-item.nearby { 
+            transform: translateY(-5px) scale(1.05); 
+        }
+
+        /* === Dock icons === */
+        .finder { background: linear-gradient(135deg, #5A9BFF, #2D62D3); }
+        .safari { background: radial-gradient(circle at center, #A3D4FF 10%, #357CFF 75%); border-radius: 50%; }
+        .mail { background: linear-gradient(145deg, #F06565, #C63A3A); }
+        .messages { background: linear-gradient(145deg, #4AC0FF, #1B89E9); }
+        .music { background: linear-gradient(45deg, #EE68AA, #D93780); }
+        .photos { background: conic-gradient(#ffdc5e, #fa7a35, #ef366e, #9b47ef, #59c7f9, #3adb5a, #ffdc5e); border-radius: 50%; }
+        .calendar { background: linear-gradient(145deg, #fff, #ddd); }
+        .notes { background: linear-gradient(to bottom, #fff59d, #fbc02d); }
+        .settings { background: linear-gradient(135deg, #666, #444); border-radius: 50%; }
+        .appstore { background: linear-gradient(135deg, #3a9bfd, #0066ff); border-radius: 50%; }
+        .trash { background: linear-gradient(145deg, #666, #333); border-radius: 10px; }
+
+        /* === Tooltip === */
+        .dock-item:hover::after {
+            content: attr(data-name);
+            position: absolute;
+            bottom: 80px;
+            background-color: rgba(255, 255, 255, 0.95);
+            color: #000;
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            pointer-events: none;
+            animation: fadeInUp 0.25s ease forwards;
+            z-index: 1001;
+        }
+
+        @keyframes fadeInUp {
+            from { 
+                opacity: 0; 
+                transform: translateY(10px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+
+        /* === Active indicator === */
+        .dot {
+            width: 5px;
+            height: 5px;
+            background-color: #fff;
+            border-radius: 50%;
+            margin-top: 7px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .dot.active { 
+            opacity: 1; 
+        }
+    </style>
 </head>
 <body>
 
@@ -64,6 +273,95 @@
         <div class="dock-item" data-name="Trash"><div class="icon-shape trash"></div><div class="dot"></div></div>
     </footer>
 
-    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            /* -----------------------------
+               1. ОНОВЛЕННЯ ЧАСУ В MENUBAR
+            ------------------------------ */
+            const dateTimeElement = document.querySelector('.date-time');
+
+            function updateDateTime() {
+                const now = new Date();
+                const options = {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    weekday: 'short',
+                    day: 'numeric',
+                    month: 'short'
+                };
+                const formattedDate = now
+                    .toLocaleDateString('uk-UA', options)
+                    .replace(',', '');
+                if (dateTimeElement) {
+                    dateTimeElement.textContent = formattedDate;
+                }
+            }
+
+            updateDateTime();
+            setInterval(updateDateTime, 60000);
+
+            /* -----------------------------
+               2. ЕФЕКТ "СТРИБКА" В DOCK
+            ------------------------------ */
+            const dockItems = document.querySelectorAll('.dock-item');
+
+            dockItems.forEach((item) => {
+                item.addEventListener('mouseenter', () => {
+                    // Додаємо клас анімації
+                    item.classList.add('active');
+                    
+                    // Плавне збільшення сусідніх іконок
+                    const prev = item.previousElementSibling;
+                    const next = item.nextElementSibling;
+                    if (prev) prev.classList.add('nearby');
+                    if (next) next.classList.add('nearby');
+                });
+
+                item.addEventListener('mouseleave', () => {
+                    // Прибираємо класи після короткої затримки
+                    setTimeout(() => {
+                        item.classList.remove('active');
+                        const prev = item.previousElementSibling;
+                        const next = item.nextElementSibling;
+                        if (prev) prev.classList.remove('nearby');
+                        if (next) next.classList.remove('nearby');
+                    }, 100);
+                });
+            });
+
+            /* -----------------------------
+               3. АВТОМАТИЧНЕ РОЗТАШУВАННЯ ІКОН НА РОБОЧОМУ СТОЛІ
+            ------------------------------ */
+            const desktopIcons = document.querySelectorAll('.desktop-icon');
+            desktopIcons.forEach((icon, index) => {
+                icon.style.opacity = '0';
+                // Анімаційна поява
+                setTimeout(() => {
+                    icon.style.transition = 'opacity 0.6s ease';
+                    icon.style.opacity = '1';
+                }, 300 + index * 100);
+            });
+
+            /* -----------------------------
+               4. ПЛАВНА ПОЯВА ІНТЕРФЕЙСУ (як macOS login fade-in)
+            ------------------------------ */
+            document.body.style.opacity = '0';
+            setTimeout(() => {
+                document.body.style.transition = 'opacity 1.2s ease';
+                document.body.style.opacity = '1';
+            }, 200);
+
+            /* -----------------------------
+               5. КЛІК ПО ІКОНАХ НА РОБОЧОМУ СТОЛІ
+            ------------------------------ */
+            desktopIcons.forEach(icon => {
+                icon.addEventListener('click', () => {
+                    const name = icon.getAttribute('data-name');
+                    console.log(`Clicked on: ${name}`);
+                    // Тут можна додати функціонал відкриття папок/файлів
+                });
+            });
+        });
+    </script>
 </body>
 </html>
