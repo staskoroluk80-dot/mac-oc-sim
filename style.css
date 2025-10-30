@@ -1,139 +1,129 @@
-/* Базові стилі та Шпалери (сучасний градієнт) */
 body {
     margin: 0;
     padding: 0;
-    /* Використання системного шрифту Apple */
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-    /* Сучасний градієнт, що імітує шпалери */
-    background: linear-gradient(180deg, #1C1E40 0%, #3A3B69 50%, #4D4E83 100%);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: linear-gradient(180deg, #2E2F49 0%, #3B3C63 40%, #54568B 100%);
+    background-attachment: fixed;
     min-height: 100vh;
+    color: rgba(255, 255, 255, 0.9);
     overflow: hidden;
-    color: #E0E0E0; /* Світлий текст для темного фону */
+    user-select: none;
 }
 
-/* 1. Menubar (Верхня панель) - Більш мінімалістичний */
+/* === Top Menubar === */
 #menubar {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    height: 28px; 
+    height: 32px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 15px;
-    font-size: 14px;
-    color: #fff;
+    padding: 0 18px;
+    font-size: 13px;
     font-weight: 500;
-    
-    /* Сучасний blur-ефект (Frosted Glass) */
-    background-color: rgba(255, 255, 255, 0.05); 
-    backdrop-filter: blur(40px) saturate(200%);
-    -webkit-backdrop-filter: blur(40px) saturate(200%);
-    
+    color: rgba(255, 255, 255, 0.92);
+    background-color: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(45px) saturate(180%);
+    -webkit-backdrop-filter: blur(45px) saturate(180%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
     z-index: 1000;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    letter-spacing: 0.1px;
 }
 
 #menubar nav span {
-    margin-right: 20px;
+    margin-right: 18px;
     cursor: default;
-    padding: 3px 6px;
-    border-radius: 8px; /* Округлення */
-    transition: background-color 0.1s;
+    padding: 3px 8px;
+    border-radius: 8px;
+    transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 #menubar nav span:hover {
-    background-color: rgba(255, 255, 255, 0.15);
+    background-color: rgba(255, 255, 255, 0.12);
+    color: #fff;
 }
 
 .apple-logo {
-    font-size: 18px;
+    font-size: 17px;
     font-weight: 700;
 }
 
 .date-time {
-    margin-right: 0 !important;
     font-weight: 400;
+    opacity: 0.9;
 }
 
-/* 2. Dock (Нижня панель) - Модернізований стиль 2024 */
+/* === Dock (macOS Sonoma style) === */
 #dock {
     position: fixed;
-    bottom: 15px; 
+    bottom: 18px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
     align-items: flex-end;
-    padding: 8px 10px;
-    border-radius: 30px; 
-    
-    /* Сучасний, темний, напівпрозорий фон */
-    background-color: rgba(20, 20, 20, 0.7); 
-    backdrop-filter: blur(40px) saturate(150%);
-    -webkit-backdrop-filter: blur(40px) saturate(150%);
-    
-    /* Глибока, темна тінь */
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7); 
+    padding: 10px 14px;
+    border-radius: 28px;
+    background-color: rgba(35, 35, 35, 0.45);
+    backdrop-filter: blur(45px) saturate(180%);
+    -webkit-backdrop-filter: blur(45px) saturate(180%);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.1);
     z-index: 999;
+    transition: all 0.3s ease;
 }
 
+/* === Dock Items === */
 .dock-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin: 0 4px; 
+    margin: 0 5px;
     cursor: pointer;
-    transition: transform 0.2s, margin 0.2s;
+    transition: transform 0.25s cubic-bezier(.17,.67,.83,.67);
+    position: relative;
 }
 
 .icon-shape {
-    width: 55px; 
-    height: 55px;
-    border-radius: 15px; 
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    border: none;
-    transition: transform 0.2s, border-radius 0.2s;
-    overflow: hidden; 
+    width: 58px;
+    height: 58px;
+    border-radius: 14px;
+    background-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.35);
+    overflow: hidden;
+    transition: all 0.25s cubic-bezier(.22,.61,.36,1);
 }
 
+/* === Hover “bounce” === */
+.dock-item:hover {
+    transform: translateY(-12px) scale(1.12);
+}
 .dock-item:hover .icon-shape {
-    transform: scale(1.15); 
-    border-radius: 18px; 
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
 }
 
-/* Кольори та форми іконок (тільки CSS!) */
+/* === Icon styles === */
 .finder {
-    background: linear-gradient(135deg, #6C91E5, #3562C9); 
+    background: linear-gradient(135deg, #5A9BFF, #2D62D3);
+    border-radius: 20%;
     position: relative;
-    border-radius: 50%; /* Кругла іконка Finder */
 }
-.finder::before, .finder::after {
-    content: '';
+.finder::before {
+    content: "😊";
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 25px; 
-    height: 25px;
-    border-radius: 50%;
-}
-.finder::before {
-    background-color: #fff; 
-    left: 35%;
-}
-.finder::after {
-    background-color: #D3D3D3; 
-    left: 65%;
+    font-size: 30px;
 }
 
 .safari {
-    background: radial-gradient(circle at center, #93C4FF 10%, #3A89FF 70%);
+    background: radial-gradient(circle at center, #A3D4FF 10%, #357CFF 75%);
     border-radius: 50%;
     position: relative;
 }
 .safari::before {
-    content: '🧭'; 
+    content: "🧭";
     position: absolute;
     top: 50%;
     left: 50%;
@@ -142,11 +132,12 @@ body {
 }
 
 .mail {
-    background: linear-gradient(to top, #E85D5D, #C0392B);
+    background: linear-gradient(145deg, #F06565, #C63A3A);
+    border-radius: 16px;
     position: relative;
 }
 .mail::before {
-    content: '✉️'; 
+    content: "✉️";
     position: absolute;
     top: 50%;
     left: 50%;
@@ -155,11 +146,12 @@ body {
 }
 
 .music {
-    background: linear-gradient(45deg, #EE68AA, #D93780); 
+    background: linear-gradient(45deg, #EE68AA, #D93780);
+    border-radius: 18px;
     position: relative;
 }
 .music::before {
-    content: '🎶'; 
+    content: "🎶";
     position: absolute;
     top: 50%;
     left: 50%;
@@ -168,50 +160,58 @@ body {
 }
 
 .settings {
-    background: #505050;
+    background: linear-gradient(135deg, #666, #444);
     border-radius: 50%;
     position: relative;
 }
 .settings::before {
-    content: '⚙️';
+    content: "⚙️";
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     font-size: 30px;
-    animation: spin 8s linear infinite; 
+    animation: spin 10s linear infinite;
 }
 
 @keyframes spin {
     to { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
-/* Індикатор активності (крапка) */
+/* === Active App Dot === */
 .dot {
-    width: 5px; 
-    height: 5px;
+    width: 6px;
+    height: 6px;
     background-color: #fff;
     border-radius: 50%;
-    margin-top: 8px; 
+    margin-top: 6px;
     opacity: 0;
-    transition: opacity 0.2s;
+    transition: opacity 0.3s;
 }
 .dot.active {
     opacity: 1;
 }
 
-/* Спливаюча підказка */
+/* === Tooltip === */
 .dock-item:hover::after {
     content: attr(data-name);
     position: absolute;
-    bottom: calc(100% + 20px); 
-    background-color: #fff;
+    bottom: 85px;
+    background-color: rgba(255, 255, 255, 0.95);
     color: #000;
     padding: 4px 10px;
-    border-radius: 10px; 
+    border-radius: 10px;
     font-size: 13px;
     font-weight: 500;
     white-space: nowrap;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
     pointer-events: none;
+    transform: translateY(-6px);
+    opacity: 0;
+    animation: fadeInUp 0.25s ease forwards;
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(0); }
+    to { opacity: 1; transform: translateY(-6px); }
 }
