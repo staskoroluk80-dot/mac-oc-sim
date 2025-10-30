@@ -1,72 +1,71 @@
-/* Базові стилі */
+/* Базові стилі та Шпалери (сучасний градієнт) */
 body {
     margin: 0;
     padding: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-    background-color: #333; /* Тимчасовий фон */
+    /* Сучасний градієнт, що імітує шпалери */
+    background: linear-gradient(180deg, #1C1E40 0%, #3A3B69 50%, #4D4E83 100%);
     min-height: 100vh;
     overflow: hidden;
+    color: #E0E0E0; /* Світлий текст */
 }
 
-/* 1. Menubar (Верхня панель) */
+/* 1. Menubar (Верхня панель) - Більш мінімалістичний */
 #menubar {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    height: 22px;
+    height: 28px; /* Трохи вища */
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 10px;
-    font-size: 13px;
+    padding: 0 15px;
+    font-size: 14px;
     color: #fff;
-    /* Імітація прозорого фону з розмиттям (macOS) */
-    background-color: rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    font-weight: 500;
+    /* Більш виражений blur-ефект і майже прозорий фон */
+    background-color: rgba(255, 255, 255, 0.05); /* Дуже світлий/прозорий */
+    backdrop-filter: blur(40px) saturate(200%);
+    -webkit-backdrop-filter: blur(40px) saturate(200%);
     z-index: 1000;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05); /* Тонка лінія */
 }
 
 #menubar nav span {
-    margin-right: 15px;
+    margin-right: 20px;
     cursor: default;
-    padding: 2px 4px;
-    border-radius: 4px;
+    padding: 3px 6px;
+    border-radius: 8px; /* Більш округлені кути для елементів меню */
     transition: background-color 0.1s;
 }
 
 #menubar nav span:hover {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.15);
 }
 
 .apple-logo {
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 18px;
+    font-weight: 700;
 }
 
-.date-time {
-    margin-right: 0 !important;
-    font-weight: 300;
-}
-
-/* 2. Dock (Нижня панель) */
+/* 2. Dock (Нижня панель) - Більш компактний, округлений */
 #dock {
     position: fixed;
-    bottom: 5px;
+    bottom: 15px; /* Піднятий вище */
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    align-items: flex-end; /* Для ефекту 'стрибка' */
-    padding: 5px 8px;
-    border-radius: 18px;
+    align-items: flex-end;
+    padding: 10px 10px;
+    border-radius: 30px; /* Більш округлені кути */
     
-    /* Імітація прозорого фону з розмиттям */
-    background-color: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(40px);
-    -webkit-backdrop-filter: blur(40px);
+    /* Сучасний blur-ефект */
+    background-color: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(45px) saturate(180%);
+    -webkit-backdrop-filter: blur(45px) saturate(180%);
     
-    box-shadow: 0 5px 30px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 10px 60px rgba(0, 0, 0, 0.5); /* Виразніша тінь */
     z-index: 999;
 }
 
@@ -74,30 +73,31 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin: 0 5px;
+    margin: 0 4px; /* Менші проміжки */
     cursor: pointer;
     transition: transform 0.2s, margin 0.2s;
 }
 
 .icon-shape {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px; /* Закруглені кути іконок */
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    width: 55px; /* Трохи більші іконки */
+    height: 55px;
+    border-radius: 15px; /* Більш виражено округлені кути */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    border: none; /* Забираємо рамку */
     transition: transform 0.2s, border-radius 0.2s;
-    /* Використовуємо градієнти та кольори замість PNG */
+    overflow: hidden; /* Важливо для градієнтів */
 }
 
 .dock-item:hover .icon-shape {
-    transform: scale(1.3); /* Ефект 'стрибка' при наведенні */
-    border-radius: 20%; /* macOS іконки трохи змінюють форму при наведенні */
+    transform: scale(1.15); /* Трохи менший, але плавніший "стрибок" */
+    border-radius: 18px; 
 }
 
-/* Кольори та форми іконок (тільки CSS!) */
+/* Кольори та форми іконок (тільки CSS!) - Сучасні градієнти */
 .finder {
-    background: linear-gradient(135deg, #5D88ED, #3F67D8);
+    background: linear-gradient(135deg, #6C91E5, #3562C9); /* Більш насичений синій */
     position: relative;
+    border-radius: 50%; /* Finder зараз круглий */
 }
 .finder::before, .finder::after {
     content: '';
@@ -105,85 +105,85 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 15px;
-    height: 15px;
+    width: 25px; /* Більші "обличчя" */
+    height: 25px;
     border-radius: 50%;
 }
 .finder::before {
-    background-color: #f0f0f0;
-    left: 30%;
+    background-color: #fff; /* Біле обличчя */
+    left: 35%;
 }
 .finder::after {
-    background-color: #C0C0C0;
-    left: 70%;
+    background-color: #D3D3D3; /* Сіре обличчя */
+    left: 65%;
 }
 
 .safari {
-    background: radial-gradient(circle at center, #E0E0E0 10%, #4682B4 70%);
-    border-radius: 50%; /* Кругла іконка */
+    background: radial-gradient(circle at center, #93C4FF 10%, #3A89FF 70%);
+    border-radius: 50%;
     position: relative;
 }
 .safari::before {
-    content: '🧭'; /* Використовуємо Unicode символ замість PNG */
+    content: '🧭'; 
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 24px;
+    font-size: 30px;
 }
 
 .mail {
-    background: linear-gradient(to top, #E74C3C, #C0392B);
+    background: linear-gradient(to top, #E85D5D, #C0392B);
     position: relative;
 }
 .mail::before {
-    content: '📧'; /* Unicode символ */
+    content: '✉️'; /* Більш сучасний символ */
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 24px;
+    font-size: 30px;
 }
 
 .music {
-    background: linear-gradient(45deg, #F06292, #E91E63);
+    background: linear-gradient(45deg, #EE68AA, #D93780); /* Рожевіший, "ніжніший" градієнт */
     position: relative;
 }
 .music::before {
-    content: '🎵'; /* Unicode символ */
+    content: '🎶'; /* Unicode символ */
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 24px;
+    font-size: 30px;
 }
 
 .settings {
-    background: #A9A9A9;
+    background: #505050;
     border-radius: 50%;
     position: relative;
 }
 .settings::before {
-    content: '⚙️'; /* Unicode символ */
+    content: '⚙️';
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 24px;
-    animation: spin 8s linear infinite; /* Анімація для шестерні */
+    font-size: 30px;
+    animation: spin 8s linear infinite;
 }
 
 @keyframes spin {
     to { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
-/* Індикатор активності (маленька крапка під іконкою) */
+/* Індикатор активності */
 .dot {
-    width: 4px;
-    height: 4px;
+    width: 5px; /* Трохи більша */
+    height: 5px;
     background-color: #fff;
     border-radius: 50%;
-    margin-top: 5px;
+    margin-top: 8px; /* Нижче */
     opacity: 0;
     transition: opacity 0.2s;
 }
@@ -191,17 +191,18 @@ body {
     opacity: 1;
 }
 
-/* Спливаюча підказка (для JS) */
+/* Спливаюча підказка */
 .dock-item:hover::after {
     content: attr(data-name);
     position: absolute;
-    bottom: calc(100% + 15px);
-    background-color: rgba(255, 255, 255, 0.9);
+    bottom: calc(100% + 20px); /* Піднята вище */
+    background-color: #fff;
     color: #000;
-    padding: 3px 8px;
-    border-radius: 5px;
-    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 10px; /* Більш округла */
+    font-size: 13px;
+    font-weight: 500;
     white-space: nowrap;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     pointer-events: none;
 }
