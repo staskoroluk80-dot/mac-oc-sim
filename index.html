@@ -213,6 +213,209 @@
         .dot.active { 
             opacity: 1; 
         }
+
+        /* === Finder Window === */
+        .finder-window {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 800px;
+            height: 500px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(20px);
+            display: none;
+            flex-direction: column;
+            z-index: 1002;
+            overflow: hidden;
+            color: #333;
+        }
+
+        .finder-header {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.8);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 8px;
+            margin-right: 15px;
+        }
+
+        .window-control {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .close { background: #ff5f57; }
+        .minimize { background: #ffbd2e; }
+        .maximize { background: #28ca42; }
+
+        .finder-toolbar {
+            display: flex;
+            padding: 8px 15px;
+            background: rgba(255, 255, 255, 0.7);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            gap: 15px;
+        }
+
+        .toolbar-button {
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background 0.2s;
+        }
+
+        .toolbar-button:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .finder-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 200px;
+            background: rgba(245, 245, 245, 0.8);
+            border-right: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 15px 0;
+        }
+
+        .sidebar-section {
+            margin-bottom: 20px;
+        }
+
+        .sidebar-title {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 5px 15px;
+            color: #666;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .sidebar-item:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .sidebar-item.active {
+            background: rgba(0, 122, 255, 0.1);
+        }
+
+        .sidebar-icon {
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        .files-area {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+        .files-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 15px;
+        }
+
+        .file-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .file-item:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .file-item.selected {
+            background: rgba(0, 122, 255, 0.1);
+        }
+
+        .file-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .file-name {
+            font-size: 12px;
+            text-align: center;
+            word-break: break-word;
+        }
+
+        .path-bar {
+            display: flex;
+            padding: 8px 15px;
+            background: rgba(245, 245, 245, 0.8);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            font-size: 13px;
+        }
+
+        .path-segment {
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .path-segment:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .path-separator {
+            margin: 0 5px;
+            color: #999;
+        }
+
+        /* === Context Menu === */
+        .context-menu {
+            position: fixed;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 5px 0;
+            z-index: 1003;
+            display: none;
+            min-width: 180px;
+        }
+
+        .context-menu-item {
+            padding: 8px 15px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background 0.2s;
+        }
+
+        .context-menu-item:hover {
+            background: rgba(0, 122, 255, 0.1);
+        }
+
+        .context-menu-divider {
+            height: 1px;
+            background: rgba(0, 0, 0, 0.1);
+            margin: 5px 0;
+        }
     </style>
 </head>
 <body>
@@ -272,6 +475,114 @@
         <div class="dock-item" data-name="App Store"><div class="icon-shape appstore"></div><div class="dot"></div></div>
         <div class="dock-item" data-name="Trash"><div class="icon-shape trash"></div><div class="dot"></div></div>
     </footer>
+
+    <!-- Finder Window -->
+    <div class="finder-window" id="finderWindow">
+        <div class="finder-header">
+            <div class="window-controls">
+                <div class="window-control close" id="closeFinder"></div>
+                <div class="window-control minimize" id="minimizeFinder"></div>
+                <div class="window-control maximize" id="maximizeFinder"></div>
+            </div>
+            <div class="path-bar" id="pathBar">
+                <div class="path-segment">Macintosh HD</div>
+                <div class="path-separator">></div>
+                <div class="path-segment">Користувачі</div>
+                <div class="path-separator">></div>
+                <div class="path-segment">Гість</div>
+                <div class="path-separator">></div>
+                <div class="path-segment">Документи</div>
+            </div>
+        </div>
+        <div class="finder-toolbar">
+            <div class="toolbar-button">Назад</div>
+            <div class="toolbar-button">Вперед</div>
+            <div class="toolbar-button">Перегляд</div>
+            <div class="toolbar-button">Сортувати</div>
+        </div>
+        <div class="finder-content">
+            <div class="sidebar">
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Улюблені</div>
+                    <div class="sidebar-item active">
+                        <span class="sidebar-icon">🏠</span>
+                        <span>Головна</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <span class="sidebar-icon">📁</span>
+                        <span>Документи</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <span class="sidebar-icon">⬇️</span>
+                        <span>Завантаження</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <span class="sidebar-icon">🖼️</span>
+                        <span>Зображення</span>
+                    </div>
+                </div>
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Пристрої</div>
+                    <div class="sidebar-item">
+                        <span class="sidebar-icon">💽</span>
+                        <span>Macintosh HD</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <span class="sidebar-icon">📀</span>
+                        <span>CD Диск</span>
+                    </div>
+                </div>
+            </div>
+            <div class="files-area">
+                <div class="files-grid" id="filesGrid">
+                    <div class="file-item" data-type="folder">
+                        <div class="file-icon">📁</div>
+                        <div class="file-name">Робота</div>
+                    </div>
+                    <div class="file-item" data-type="folder">
+                        <div class="file-icon">📁</div>
+                        <div class="file-name">Особисте</div>
+                    </div>
+                    <div class="file-item" data-type="folder">
+                        <div class="file-icon">📁</div>
+                        <div class="file-name">Проекти</div>
+                    </div>
+                    <div class="file-item" data-type="file">
+                        <div class="file-icon">📄</div>
+                        <div class="file-name">Звіт.pdf</div>
+                    </div>
+                    <div class="file-item" data-type="file">
+                        <div class="file-icon">📄</div>
+                        <div class="file-name">Презентація.key</div>
+                    </div>
+                    <div class="file-item" data-type="file">
+                        <div class="file-icon">🖼️</div>
+                        <div class="file-name">Фото.jpg</div>
+                    </div>
+                    <div class="file-item" data-type="file">
+                        <div class="file-icon">🎵</div>
+                        <div class="file-name">Музика.mp3</div>
+                    </div>
+                    <div class="file-item" data-type="file">
+                        <div class="file-icon">🎥</div>
+                        <div class="file-name">Відео.mov</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div class="context-menu" id="contextMenu">
+        <div class="context-menu-item">Нова папка</div>
+        <div class="context-menu-item">Новий документ</div>
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item">Відкрити</div>
+        <div class="context-menu-item">Перейменувати</div>
+        <div class="context-menu-item">Перемістити до кошика</div>
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item">Отримати інформацію</div>
+    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -357,8 +668,133 @@
             desktopIcons.forEach(icon => {
                 icon.addEventListener('click', () => {
                     const name = icon.getAttribute('data-name');
-                    console.log(`Clicked on: ${name}`);
-                    // Тут можна додати функціонал відкриття папок/файлів
+                    if (name === 'Documents' || name === 'Finder') {
+                        openFinder();
+                    }
+                });
+            });
+
+            /* -----------------------------
+               6. ПРОВІДНИК ФАЙЛІВ
+            ------------------------------ */
+            const finderWindow = document.getElementById('finderWindow');
+            const closeFinderBtn = document.getElementById('closeFinder');
+            const minimizeFinderBtn = document.getElementById('minimizeFinder');
+            const maximizeFinderBtn = document.getElementById('maximizeFinder');
+            const filesGrid = document.getElementById('filesGrid');
+            const contextMenu = document.getElementById('contextMenu');
+
+            function openFinder() {
+                finderWindow.style.display = 'flex';
+                // Оновлюємо активний стан в Dock
+                document.querySelectorAll('.dock-item .dot').forEach(dot => {
+                    dot.classList.remove('active');
+                });
+                document.querySelector('.dock-item[data-name="Finder"] .dot').classList.add('active');
+            }
+
+            function closeFinder() {
+                finderWindow.style.display = 'none';
+                document.querySelector('.dock-item[data-name="Finder"] .dot').classList.remove('active');
+            }
+
+            closeFinderBtn.addEventListener('click', closeFinder);
+            
+            minimizeFinderBtn.addEventListener('click', () => {
+                finderWindow.style.display = 'none';
+                document.querySelector('.dock-item[data-name="Finder"] .dot').classList.remove('active');
+            });
+            
+            maximizeFinderBtn.addEventListener('click', () => {
+                if (finderWindow.style.width === '100vw' && finderWindow.style.height === '100vh') {
+                    finderWindow.style.width = '800px';
+                    finderWindow.style.height = '500px';
+                    finderWindow.style.top = '50%';
+                    finderWindow.style.left = '50%';
+                    finderWindow.style.transform = 'translate(-50%, -50%)';
+                } else {
+                    finderWindow.style.width = '100vw';
+                    finderWindow.style.height = '100vh';
+                    finderWindow.style.top = '0';
+                    finderWindow.style.left = '0';
+                    finderWindow.style.transform = 'none';
+                }
+            });
+
+            // Відкриття провідника при кліку на Finder в Dock
+            document.querySelector('.dock-item[data-name="Finder"]').addEventListener('click', openFinder);
+
+            // Виділення файлів
+            filesGrid.addEventListener('click', (e) => {
+                const fileItem = e.target.closest('.file-item');
+                if (fileItem) {
+                    // Знімаємо виділення з усіх елементів
+                    document.querySelectorAll('.file-item').forEach(item => {
+                        item.classList.remove('selected');
+                    });
+                    // Додаємо виділення до поточного елемента
+                    fileItem.classList.add('selected');
+                }
+            });
+
+            // Контекстне меню
+            document.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                const fileItem = e.target.closest('.file-item');
+                
+                if (fileItem) {
+                    contextMenu.style.display = 'block';
+                    contextMenu.style.left = e.pageX + 'px';
+                    contextMenu.style.top = e.pageY + 'px';
+                } else if (e.target.closest('.files-area')) {
+                    contextMenu.style.display = 'block';
+                    contextMenu.style.left = e.pageX + 'px';
+                    contextMenu.style.top = e.pageY + 'px';
+                }
+            });
+
+            document.addEventListener('click', () => {
+                contextMenu.style.display = 'none';
+            });
+
+            // Подвійний клік для відкриття файлів/папок
+            filesGrid.addEventListener('dblclick', (e) => {
+                const fileItem = e.target.closest('.file-item');
+                if (fileItem) {
+                    const type = fileItem.getAttribute('data-type');
+                    const name = fileItem.querySelector('.file-name').textContent;
+                    
+                    if (type === 'folder') {
+                        alert(`Відкриваємо папку: ${name}`);
+                        // Тут можна реалізувати навігацію по папках
+                    } else {
+                        alert(`Відкриваємо файл: ${name}`);
+                        // Тут можна реалізувати відкриття файлів
+                    }
+                }
+            });
+
+            // Навігація по шляху
+            document.querySelectorAll('.path-segment').forEach(segment => {
+                segment.addEventListener('click', () => {
+                    alert(`Переходимо до: ${segment.textContent}`);
+                    // Тут можна реалізувати навігацію по шляху
+                });
+            });
+
+            // Навігація в бічній панелі
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    // Видаляємо активний клас з усіх елементів
+                    document.querySelectorAll('.sidebar-item').forEach(i => {
+                        i.classList.remove('active');
+                    });
+                    // Додаємо активний клас до поточного елемента
+                    item.classList.add('active');
+                    
+                    const name = item.querySelector('span:last-child').textContent;
+                    alert(`Відкриваємо: ${name}`);
+                    // Тут можна реалізувати навігацію
                 });
             });
         });
