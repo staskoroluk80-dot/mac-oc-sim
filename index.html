@@ -133,7 +133,7 @@
         /* === Dock icons with images === */
         .finder { background: linear-gradient(135deg, #5A9BFF, #2D62D3); }
         .safari { background: radial-gradient(circle at center, #A3D4FF 10%, #357CFF 75%); border-radius: 50%; }
-        .mail { background-image: url('mail.png'); }
+        .mail { background-image: url('Mail.png'); }
         .messages { background: linear-gradient(145deg, #4AC0FF, #1B89E9); }
         .music { background: linear-gradient(45deg, #EE68AA, #D93780); }
         .photos { background: conic-gradient(#ffdc5e, #fa7a35, #ef366e, #9b47ef, #59c7f9, #3adb5a, #ffdc5e); border-radius: 50%; }
@@ -142,6 +142,7 @@
         .settings { background-image: url('Settings.png'); border-radius: 50%; }
         .appstore { background: linear-gradient(135deg, #3a9bfd, #0066ff); border-radius: 50%; }
         .trash { background-image: url('Trash.png'); border-radius: 10px; }
+        .code-editor { background: linear-gradient(135deg, #6e45e2, #88d3ce); }
 
         /* === Tooltip === */
         .dock-item:hover::after {
@@ -346,6 +347,16 @@
             max-width: 80px;
         }
 
+        .file-name-input {
+            border: 1px solid #007AFF;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 12px;
+            width: 70px;
+            text-align: center;
+            background: white;
+        }
+
         .path-bar {
             display: flex;
             padding: 8px 15px;
@@ -400,6 +411,72 @@
             margin: 5px 0;
         }
 
+        /* === Code Editor Window === */
+        #codeEditorWindow {
+            width: 900px;
+            height: 600px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .editor-toolbar {
+            display: flex;
+            padding: 8px 15px;
+            background: rgba(255, 255, 255, 0.7);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            gap: 10px;
+        }
+
+        .editor-content {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .editor-sidebar {
+            width: 200px;
+            background: rgba(245, 245, 245, 0.8);
+            border-right: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 15px;
+        }
+
+        .editor-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .editor-tabs {
+            display: flex;
+            background: rgba(240, 240, 240, 0.8);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .editor-tab {
+            padding: 8px 15px;
+            cursor: pointer;
+            border-right: 1px solid rgba(0, 0, 0, 0.1);
+            font-size: 13px;
+        }
+
+        .editor-tab.active {
+            background: white;
+        }
+
+        .code-area {
+            flex: 1;
+            padding: 15px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            overflow: auto;
+            outline: none;
+            white-space: pre;
+        }
+
         /* === Other Apps === */
         #safariWindow, #mailWindow, #settingsWindow {
             width: 600px;
@@ -416,6 +493,54 @@
             justify-content: center;
             font-size: 18px;
             color: #666;
+        }
+
+        /* === Modal === */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1004;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            min-width: 300px;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 8px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .modal-button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .modal-button.primary {
+            background: #007AFF;
+            color: white;
         }
     </style>
 </head>
@@ -463,7 +588,7 @@
         <div class="dock-item" data-name="Finder"><div class="icon-shape finder"></div><div class="dot active"></div></div>
         <div class="dock-item" data-name="Safari"><div class="icon-shape safari"></div></div>
         <div class="dock-item" data-name="Mail"><div class="icon-shape mail"></div></div>
-        <div class="dock-item" data-name="Messages"><div class="icon-shape messages"></div></div>
+        <div class="dock-item" data-name="Code Editor"><div class="icon-shape code-editor"></div></div>
         <div class="dock-item" data-name="Music"><div class="icon-shape music"></div></div>
         <div class="dock-item" data-name="Photos"><div class="icon-shape photos"></div></div>
         <div class="dock-item" data-name="Calendar"><div class="icon-shape calendar"></div></div>
@@ -515,6 +640,43 @@
         </div>
     </div>
 
+    <!-- Code Editor Window -->
+    <div class="app-window" id="codeEditorWindow">
+        <div class="window-header">
+            <div class="window-controls">
+                <div class="window-control close" data-window="codeEditorWindow"></div>
+                <div class="window-control minimize"></div>
+                <div class="window-control maximize"></div>
+            </div>
+            <div class="window-title">Code Editor</div>
+        </div>
+        <div class="editor-toolbar">
+            <div class="toolbar-button" id="newFileBtn">Новий файл</div>
+            <div class="toolbar-button" id="saveFileBtn">Зберегти</div>
+            <div class="toolbar-button" id="runCodeBtn">Запустити</div>
+        </div>
+        <div class="editor-content">
+            <div class="editor-sidebar">
+                <div class="sidebar-title">Файли проекту</div>
+                <div id="projectFiles">
+                    <!-- Project files will be listed here -->
+                </div>
+            </div>
+            <div class="editor-main">
+                <div class="editor-tabs">
+                    <div class="editor-tab active">script.js</div>
+                </div>
+                <div class="code-area" id="codeEditor" contenteditable="true">// Welcome to Code Editor!
+function helloWorld() {
+    console.log("Hello, World!");
+    return "Hello from macOS!";
+}
+
+// Start coding here...</div>
+            </div>
+        </div>
+    </div>
+
     <!-- Other App Windows -->
     <div class="app-window" id="safariWindow">
         <div class="window-header">
@@ -562,8 +724,21 @@
     <div class="context-menu" id="contextMenu">
         <div class="context-menu-item" id="contextNewFolder">Нова папка</div>
         <div class="context-menu-divider"></div>
+        <div class="context-menu-item" id="contextOpen">Відкрити</div>
         <div class="context-menu-item" id="contextDelete">Видалити</div>
-        <div class="context-menu-item">Перейменувати</div>
+        <div class="context-menu-item" id="contextRename">Перейменувати</div>
+    </div>
+
+    <!-- Name Input Modal -->
+    <div class="modal" id="nameModal">
+        <div class="modal-content">
+            <h3 style="margin: 0 0 15px 0;">Введіть назву папки</h3>
+            <input type="text" class="modal-input" id="folderNameInput" placeholder="Назва папки" value="Нова папка">
+            <div class="modal-buttons">
+                <button class="modal-button" id="cancelNameBtn">Скасувати</button>
+                <button class="modal-button primary" id="confirmNameBtn">Створити</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -572,6 +747,7 @@
             let selectedFolder = null;
             let isDragging = false;
             let dragOffset = { x: 0, y: 0 };
+            let folders = {};
 
             /* -----------------------------
                1. ОНОВЛЕННЯ ЧАСУ В MENUBAR
@@ -628,7 +804,8 @@
                 finderWindow: document.getElementById('finderWindow'),
                 safariWindow: document.getElementById('safariWindow'),
                 mailWindow: document.getElementById('mailWindow'),
-                settingsWindow: document.getElementById('settingsWindow')
+                settingsWindow: document.getElementById('settingsWindow'),
+                codeEditorWindow: document.getElementById('codeEditorWindow')
             };
 
             // Функція закриття вікон
@@ -657,6 +834,7 @@
             document.querySelector('.dock-item[data-name="Safari"]').addEventListener('click', () => openApp('safariWindow', 'Safari'));
             document.querySelector('.dock-item[data-name="Mail"]').addEventListener('click', () => openApp('mailWindow', 'Mail'));
             document.querySelector('.dock-item[data-name="Settings"]').addEventListener('click', () => openApp('settingsWindow', 'Settings'));
+            document.querySelector('.dock-item[data-name="Code Editor"]').addEventListener('click', () => openApp('codeEditorWindow', 'Code Editor'));
 
             // Відкриття Files з робочого столу
             document.querySelector('.desktop-icon[data-name="Files"]').addEventListener('click', () => openApp('finderWindow', 'Finder'));
@@ -678,18 +856,37 @@
             const filesGrid = document.getElementById('filesGrid');
             const newFolderBtn = document.getElementById('newFolderBtn');
             const deleteFolderBtn = document.getElementById('deleteFolderBtn');
+            const nameModal = document.getElementById('nameModal');
+            const folderNameInput = document.getElementById('folderNameInput');
+            const cancelNameBtn = document.getElementById('cancelNameBtn');
+            const confirmNameBtn = document.getElementById('confirmNameBtn');
 
-            function createNewFolder() {
-                const folderName = `Нова папка ${folderCounter}`;
-                folderCounter++;
+            function showNameModal() {
+                folderNameInput.value = `Нова папка ${folderCounter}`;
+                nameModal.style.display = 'flex';
+                folderNameInput.focus();
+                folderNameInput.select();
+            }
+
+            function createNewFolder(name) {
+                const folderId = 'folder_' + Date.now();
                 
                 const folderElement = document.createElement('div');
                 folderElement.className = 'file-item';
                 folderElement.setAttribute('data-type', 'folder');
+                folderElement.setAttribute('data-id', folderId);
                 folderElement.innerHTML = `
                     <div class="file-icon folder-icon"></div>
-                    <div class="file-name">${folderName}</div>
+                    <div class="file-name">${name}</div>
                 `;
+
+                // Зберігаємо інформацію про папку
+                folders[folderId] = {
+                    id: folderId,
+                    name: name,
+                    element: folderElement,
+                    files: []
+                };
 
                 // Додаємо обробники подій для нової папки
                 folderElement.addEventListener('click', (e) => {
@@ -698,7 +895,7 @@
                 });
 
                 folderElement.addEventListener('dblclick', () => {
-                    alert(`Відкриваємо папку: ${folderName}`);
+                    openFolder(folderId);
                 });
 
                 folderElement.addEventListener('contextmenu', (e) => {
@@ -708,6 +905,43 @@
                 });
 
                 filesGrid.appendChild(folderElement);
+                folderCounter++;
+            }
+
+            function openFolder(folderId) {
+                const folder = folders[folderId];
+                if (folder) {
+                    // Очищаємо поточний вміст
+                    filesGrid.innerHTML = '';
+                    
+                    // Додаємо файли з папки
+                    folder.files.forEach(file => {
+                        const fileElement = document.createElement('div');
+                        fileElement.className = 'file-item';
+                        fileElement.setAttribute('data-type', 'file');
+                        fileElement.innerHTML = `
+                            <div class="file-icon">📄</div>
+                            <div class="file-name">${file.name}</div>
+                        `;
+                        filesGrid.appendChild(fileElement);
+                    });
+
+                    // Оновлюємо шлях
+                    updatePathBar(folder.name);
+                    
+                    alert(`Відкрито папку: ${folder.name}`);
+                }
+            }
+
+            function updatePathBar(folderName) {
+                const pathBar = document.querySelector('.path-bar');
+                pathBar.innerHTML = `
+                    <div class="path-segment">Macintosh HD</div>
+                    <div class="path-separator">></div>
+                    <div class="path-segment">Files</div>
+                    <div class="path-separator">></div>
+                    <div class="path-segment">${folderName}</div>
+                `;
             }
 
             function selectFolder(folderElement) {
@@ -722,25 +956,51 @@
 
             function deleteSelectedFolder() {
                 if (selectedFolder) {
+                    const folderId = selectedFolder.getAttribute('data-id');
+                    delete folders[folderId];
                     selectedFolder.remove();
                     selectedFolder = null;
                 }
             }
 
-            newFolderBtn.addEventListener('click', createNewFolder);
+            newFolderBtn.addEventListener('click', showNameModal);
             deleteFolderBtn.addEventListener('click', deleteSelectedFolder);
+
+            confirmNameBtn.addEventListener('click', () => {
+                const name = folderNameInput.value.trim() || `Нова папка ${folderCounter}`;
+                createNewFolder(name);
+                nameModal.style.display = 'none';
+            });
+
+            cancelNameBtn.addEventListener('click', () => {
+                nameModal.style.display = 'none';
+            });
+
+            // Закриття модального вікна при кліку на фон
+            nameModal.addEventListener('click', (e) => {
+                if (e.target === nameModal) {
+                    nameModal.style.display = 'none';
+                }
+            });
 
             /* -----------------------------
                5. КОНТЕКСТНЕ МЕНЮ
             ------------------------------ */
             const contextMenu = document.getElementById('contextMenu');
             const contextNewFolder = document.getElementById('contextNewFolder');
+            const contextOpen = document.getElementById('contextOpen');
             const contextDelete = document.getElementById('contextDelete');
+            const contextRename = document.getElementById('contextRename');
 
             function showContextMenu(x, y) {
                 contextMenu.style.left = x + 'px';
                 contextMenu.style.top = y + 'px';
                 contextMenu.style.display = 'block';
+                
+                // Показуємо/ховаємо пункти меню в залежності від контексту
+                contextOpen.style.display = selectedFolder ? 'block' : 'none';
+                contextDelete.style.display = selectedFolder ? 'block' : 'none';
+                contextRename.style.display = selectedFolder ? 'block' : 'none';
             }
 
             function hideContextMenu() {
@@ -748,12 +1008,33 @@
             }
 
             contextNewFolder.addEventListener('click', () => {
-                createNewFolder();
+                showNameModal();
+                hideContextMenu();
+            });
+
+            contextOpen.addEventListener('click', () => {
+                if (selectedFolder) {
+                    const folderId = selectedFolder.getAttribute('data-id');
+                    openFolder(folderId);
+                }
                 hideContextMenu();
             });
 
             contextDelete.addEventListener('click', () => {
                 deleteSelectedFolder();
+                hideContextMenu();
+            });
+
+            contextRename.addEventListener('click', () => {
+                if (selectedFolder) {
+                    const folderId = selectedFolder.getAttribute('data-id');
+                    const folder = folders[folderId];
+                    const newName = prompt('Введіть нову назву:', folder.name);
+                    if (newName && newName.trim()) {
+                        folder.name = newName.trim();
+                        selectedFolder.querySelector('.file-name').textContent = newName.trim();
+                    }
+                }
                 hideContextMenu();
             });
 
@@ -799,7 +1080,34 @@
             });
 
             /* -----------------------------
-               7. ПЛАВНА ПОЯВА ІНТЕРФЕЙСУ
+               7. РЕДАКТОР КОДУ
+            ------------------------------ */
+            const codeEditor = document.getElementById('codeEditor');
+            const runCodeBtn = document.getElementById('runCodeBtn');
+            const saveFileBtn = document.getElementById('saveFileBtn');
+            const newFileBtn = document.getElementById('newFileBtn');
+
+            runCodeBtn.addEventListener('click', () => {
+                const code = codeEditor.textContent;
+                try {
+                    // Створюємо функцію з коду та виконуємо її
+                    const result = new Function(code)();
+                    alert('Код виконано успішно! Результат: ' + result);
+                } catch (error) {
+                    alert('Помилка виконання коду: ' + error.message);
+                }
+            });
+
+            saveFileBtn.addEventListener('click', () => {
+                alert('Файл збережено!');
+            });
+
+            newFileBtn.addEventListener('click', () => {
+                codeEditor.textContent = '// Новий файл\n// Почніть писати код тут...';
+            });
+
+            /* -----------------------------
+               8. ПЛАВНА ПОЯВА ІНТЕРФЕЙСУ
             ------------------------------ */
             document.body.style.opacity = '0';
             setTimeout(() => {
@@ -809,8 +1117,9 @@
 
             // Створюємо кілька початкових папок
             setTimeout(() => {
-                createNewFolder();
-                createNewFolder();
+                createNewFolder('Проекти');
+                createNewFolder('Документи');
+                createNewFolder('Зображення');
             }, 500);
         });
     </script>
