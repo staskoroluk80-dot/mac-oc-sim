@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>macOS Air 2024 Simulation</title>
     <style>
-        /* macOS Air 2024 Simulation – refined Dock + Desktop icons */
         body {
             margin: 0;
             padding: 0;
@@ -15,7 +14,6 @@
             overflow: hidden;
             color: rgba(255, 255, 255, 0.9);
             user-select: none;
-            opacity: 1;
         }
 
         /* === Меню === */
@@ -35,12 +33,6 @@
             backdrop-filter: blur(45px) saturate(180%);
             border-bottom: 1px solid rgba(255, 255, 255, 0.07);
             z-index: 1000;
-            box-sizing: border-box;
-        }
-
-        #menubar .left-side, #menubar .right-side {
-            display: flex;
-            align-items: center;
         }
 
         #menubar nav span {
@@ -50,19 +42,7 @@
             border-radius: 6px;
             transition: background-color 0.15s ease;
         }
-        #menubar nav span:hover { 
-            background-color: rgba(255, 255, 255, 0.15); 
-        }
-
-        .apple-logo {
-            font-weight: bold;
-            margin-right: 8px;
-        }
-
-        .app-name {
-            font-weight: 600;
-            margin-right: 16px;
-        }
+        #menubar nav span:hover { background-color: rgba(255, 255, 255, 0.15); }
 
         /* === Робочий стіл === */
         #desktop {
@@ -72,8 +52,6 @@
             gap: 15px;
             padding: 60px 20px;
             justify-content: start;
-            min-height: calc(100vh - 120px);
-            margin-top: 32px;
         }
 
         .desktop-icon {
@@ -83,31 +61,21 @@
             justify-content: center;
             color: white;
             text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+            font-size: 42px;
+            position: relative;
             cursor: default;
             transition: transform 0.2s;
-            position: relative;
-            width: 90px;
-            height: 90px;
         }
         .desktop-icon:hover {
             transform: scale(1.05);
         }
-
-        .icon-emoji {
-            font-size: 42px;
-            margin-bottom: 5px;
-        }
-
-        .icon-label {
+        .desktop-icon::after {
+            content: attr(data-name);
+            position: absolute;
+            bottom: -22px;
             font-size: 13px;
             color: #fff;
             opacity: 0.9;
-            text-align: center;
-            margin-top: 5px;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.6);
-            max-width: 90px;
-            word-wrap: break-word;
-            line-height: 1.2;
         }
 
         /* === Dock === */
@@ -144,32 +112,23 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.35);
             overflow: hidden;
             transition: all 0.25s ease;
+            background-size: cover;
+            background-position: center;
         }
+        .dock-item:hover { transform: translateY(-10px) scale(1.12); }
 
-        .dock-item:hover { 
-            transform: translateY(-10px) scale(1.12); 
-        }
-
-        .dock-item.active { 
-            transform: translateY(-5px) scale(1.05); 
-        }
-
-        .dock-item.nearby { 
-            transform: translateY(-5px) scale(1.05); 
-        }
-
-        /* === Dock icons === */
+        /* === Dock icons with images === */
         .finder { background: linear-gradient(135deg, #5A9BFF, #2D62D3); }
         .safari { background: radial-gradient(circle at center, #A3D4FF 10%, #357CFF 75%); border-radius: 50%; }
-        .mail { background: linear-gradient(145deg, #F06565, #C63A3A); }
+        .mail { background-image: url('mail.png'); }
         .messages { background: linear-gradient(145deg, #4AC0FF, #1B89E9); }
         .music { background: linear-gradient(45deg, #EE68AA, #D93780); }
         .photos { background: conic-gradient(#ffdc5e, #fa7a35, #ef366e, #9b47ef, #59c7f9, #3adb5a, #ffdc5e); border-radius: 50%; }
-        .calendar { background: linear-gradient(145deg, #fff, #ddd); }
-        .notes { background: linear-gradient(to bottom, #fff59d, #fbc02d); }
-        .settings { background: linear-gradient(135deg, #666, #444); border-radius: 50%; }
+        .calendar { background: linear-gradient(145deg, #fff, #ddd); color: #333; }
+        .notes { background: linear-gradient(to bottom, #fff59d, #fbc02d); color: #333; }
+        .settings { background-image: url('Settings.png'); border-radius: 50%; }
         .appstore { background: linear-gradient(135deg, #3a9bfd, #0066ff); border-radius: 50%; }
-        .trash { background: linear-gradient(145deg, #666, #333); border-radius: 10px; }
+        .trash { background-image: url('Trash.png'); border-radius: 10px; }
 
         /* === Tooltip === */
         .dock-item:hover::after {
@@ -186,18 +145,10 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
             pointer-events: none;
             animation: fadeInUp 0.25s ease forwards;
-            z-index: 1001;
         }
-
         @keyframes fadeInUp {
-            from { 
-                opacity: 0; 
-                transform: translateY(10px); 
-            }
-            to { 
-                opacity: 1; 
-                transform: translateY(0); 
-            }
+            from { opacity: 0; transform: translateY(0); }
+            to { opacity: 1; transform: translateY(-6px); }
         }
 
         /* === Active indicator === */
@@ -208,11 +159,8 @@
             border-radius: 50%;
             margin-top: 7px;
             opacity: 0;
-            transition: opacity 0.3s ease;
         }
-        .dot.active { 
-            opacity: 1; 
-        }
+        .dot.active { opacity: 1; }
 
         /* === Finder Window === */
         .finder-window {
@@ -251,6 +199,7 @@
             width: 12px;
             height: 12px;
             border-radius: 50%;
+            cursor: pointer;
         }
 
         .close { background: #ff5f57; }
@@ -353,8 +302,16 @@
         }
 
         .file-icon {
-            font-size: 32px;
+            width: 48px;
+            height: 48px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
             margin-bottom: 8px;
+        }
+
+        .folder-icon {
+            background-image: url('Folder.png');
         }
 
         .file-name {
@@ -386,36 +343,6 @@
             margin: 0 5px;
             color: #999;
         }
-
-        /* === Context Menu === */
-        .context-menu {
-            position: fixed;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 8px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            padding: 5px 0;
-            z-index: 1003;
-            display: none;
-            min-width: 180px;
-        }
-
-        .context-menu-item {
-            padding: 8px 15px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: background 0.2s;
-        }
-
-        .context-menu-item:hover {
-            background: rgba(0, 122, 255, 0.1);
-        }
-
-        .context-menu-divider {
-            height: 1px;
-            background: rgba(0, 0, 0, 0.1);
-            margin: 5px 0;
-        }
     </style>
 </head>
 <body>
@@ -443,37 +370,25 @@
 
     <!-- Робочий стіл -->
     <main id="desktop">
-        <div class="desktop-icon" data-name="Macintosh HD">
-            <div class="icon-emoji">💽</div>
-            <div class="icon-label">Macintosh HD</div>
-        </div>
-        <div class="desktop-icon" data-name="Documents">
-            <div class="icon-emoji">📁</div>
-            <div class="icon-label">Documents</div>
-        </div>
-        <div class="desktop-icon" data-name="Downloads">
-            <div class="icon-emoji">⬇️</div>
-            <div class="icon-label">Downloads</div>
-        </div>
-        <div class="desktop-icon" data-name="Trash">
-            <div class="icon-emoji">🗑️</div>
-            <div class="icon-label">Trash</div>
-        </div>
+        <div class="desktop-icon" data-name="Macintosh HD">💽</div>
+        <div class="desktop-icon" data-name="Documents">📁</div>
+        <div class="desktop-icon" data-name="Downloads">⬇️</div>
+        <div class="desktop-icon" data-name="Trash">🗑️</div>
     </main>
 
     <!-- Dock -->
     <footer id="dock">
         <div class="dock-item" data-name="Finder"><div class="icon-shape finder"></div><div class="dot active"></div></div>
-        <div class="dock-item" data-name="Safari"><div class="icon-shape safari"></div><div class="dot"></div></div>
-        <div class="dock-item" data-name="Mail"><div class="icon-shape mail"></div><div class="dot"></div></div>
-        <div class="dock-item" data-name="Messages"><div class="icon-shape messages"></div><div class="dot"></div></div>
-        <div class="dock-item" data-name="Music"><div class="icon-shape music"></div><div class="dot"></div></div>
-        <div class="dock-item" data-name="Photos"><div class="icon-shape photos"></div><div class="dot"></div></div>
-        <div class="dock-item" data-name="Calendar"><div class="icon-shape calendar"></div><div class="dot"></div></div>
-        <div class="dock-item" data-name="Notes"><div class="icon-shape notes"></div><div class="dot"></div></div>
-        <div class="dock-item" data-name="Settings"><div class="icon-shape settings"></div><div class="dot"></div></div>
-        <div class="dock-item" data-name="App Store"><div class="icon-shape appstore"></div><div class="dot"></div></div>
-        <div class="dock-item" data-name="Trash"><div class="icon-shape trash"></div><div class="dot"></div></div>
+        <div class="dock-item" data-name="Safari"><div class="icon-shape safari"></div></div>
+        <div class="dock-item" data-name="Mail"><div class="icon-shape mail"></div></div>
+        <div class="dock-item" data-name="Messages"><div class="icon-shape messages"></div></div>
+        <div class="dock-item" data-name="Music"><div class="icon-shape music"></div></div>
+        <div class="dock-item" data-name="Photos"><div class="icon-shape photos"></div></div>
+        <div class="dock-item" data-name="Calendar"><div class="icon-shape calendar"></div></div>
+        <div class="dock-item" data-name="Notes"><div class="icon-shape notes"></div></div>
+        <div class="dock-item" data-name="Settings"><div class="icon-shape settings"></div></div>
+        <div class="dock-item" data-name="App Store"><div class="icon-shape appstore"></div></div>
+        <div class="dock-item" data-name="Trash"><div class="icon-shape trash"></div></div>
     </footer>
 
     <!-- Finder Window -->
@@ -536,15 +451,15 @@
             <div class="files-area">
                 <div class="files-grid" id="filesGrid">
                     <div class="file-item" data-type="folder">
-                        <div class="file-icon">📁</div>
+                        <div class="file-icon folder-icon"></div>
                         <div class="file-name">Робота</div>
                     </div>
                     <div class="file-item" data-type="folder">
-                        <div class="file-icon">📁</div>
+                        <div class="file-icon folder-icon"></div>
                         <div class="file-name">Особисте</div>
                     </div>
                     <div class="file-item" data-type="folder">
-                        <div class="file-icon">📁</div>
+                        <div class="file-icon folder-icon"></div>
                         <div class="file-name">Проекти</div>
                     </div>
                     <div class="file-item" data-type="file">
@@ -570,18 +485,6 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Context Menu -->
-    <div class="context-menu" id="contextMenu">
-        <div class="context-menu-item">Нова папка</div>
-        <div class="context-menu-item">Новий документ</div>
-        <div class="context-menu-divider"></div>
-        <div class="context-menu-item">Відкрити</div>
-        <div class="context-menu-item">Перейменувати</div>
-        <div class="context-menu-item">Перемістити до кошика</div>
-        <div class="context-menu-divider"></div>
-        <div class="context-menu-item">Отримати інформацію</div>
     </div>
 
     <script>
@@ -620,7 +523,6 @@
                 item.addEventListener('mouseenter', () => {
                     // Додаємо клас анімації
                     item.classList.add('active');
-                    
                     // Плавне збільшення сусідніх іконок
                     const prev = item.previousElementSibling;
                     const next = item.nextElementSibling;
@@ -630,13 +532,11 @@
 
                 item.addEventListener('mouseleave', () => {
                     // Прибираємо класи після короткої затримки
-                    setTimeout(() => {
-                        item.classList.remove('active');
-                        const prev = item.previousElementSibling;
-                        const next = item.nextElementSibling;
-                        if (prev) prev.classList.remove('nearby');
-                        if (next) next.classList.remove('nearby');
-                    }, 100);
+                    item.classList.remove('active');
+                    const prev = item.previousElementSibling;
+                    const next = item.nextElementSibling;
+                    if (prev) prev.classList.remove('nearby');
+                    if (next) next.classList.remove('nearby');
                 });
             });
 
@@ -645,6 +545,8 @@
             ------------------------------ */
             const desktopIcons = document.querySelectorAll('.desktop-icon');
             desktopIcons.forEach((icon, index) => {
+                icon.style.left = `${20 + (index % 2) * 100}px`;
+                icon.style.top = `${20 + Math.floor(index / 2) * 100}px`;
                 icon.style.opacity = '0';
                 // Анімаційна поява
                 setTimeout(() => {
@@ -663,26 +565,13 @@
             }, 200);
 
             /* -----------------------------
-               5. КЛІК ПО ІКОНАХ НА РОБОЧОМУ СТОЛІ
-            ------------------------------ */
-            desktopIcons.forEach(icon => {
-                icon.addEventListener('click', () => {
-                    const name = icon.getAttribute('data-name');
-                    if (name === 'Documents' || name === 'Finder') {
-                        openFinder();
-                    }
-                });
-            });
-
-            /* -----------------------------
-               6. ПРОВІДНИК ФАЙЛІВ
+               5. ПРОВІДНИК ФАЙЛІВ
             ------------------------------ */
             const finderWindow = document.getElementById('finderWindow');
             const closeFinderBtn = document.getElementById('closeFinder');
             const minimizeFinderBtn = document.getElementById('minimizeFinder');
             const maximizeFinderBtn = document.getElementById('maximizeFinder');
             const filesGrid = document.getElementById('filesGrid');
-            const contextMenu = document.getElementById('contextMenu');
 
             function openFinder() {
                 finderWindow.style.display = 'flex';
@@ -724,6 +613,9 @@
             // Відкриття провідника при кліку на Finder в Dock
             document.querySelector('.dock-item[data-name="Finder"]').addEventListener('click', openFinder);
 
+            // Відкриття провідника при кліку на Documents на робочому столі
+            document.querySelector('.desktop-icon[data-name="Documents"]').addEventListener('click', openFinder);
+
             // Виділення файлів
             filesGrid.addEventListener('click', (e) => {
                 const fileItem = e.target.closest('.file-item');
@@ -735,26 +627,6 @@
                     // Додаємо виділення до поточного елемента
                     fileItem.classList.add('selected');
                 }
-            });
-
-            // Контекстне меню
-            document.addEventListener('contextmenu', (e) => {
-                e.preventDefault();
-                const fileItem = e.target.closest('.file-item');
-                
-                if (fileItem) {
-                    contextMenu.style.display = 'block';
-                    contextMenu.style.left = e.pageX + 'px';
-                    contextMenu.style.top = e.pageY + 'px';
-                } else if (e.target.closest('.files-area')) {
-                    contextMenu.style.display = 'block';
-                    contextMenu.style.left = e.pageX + 'px';
-                    contextMenu.style.top = e.pageY + 'px';
-                }
-            });
-
-            document.addEventListener('click', () => {
-                contextMenu.style.display = 'none';
             });
 
             // Подвійний клік для відкриття файлів/папок
