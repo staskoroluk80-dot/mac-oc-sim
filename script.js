@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Оновлення часу в Menubar
+    /* -----------------------------
+       1. ОНОВЛЕННЯ ЧАСУ В MENUBAR
+    ------------------------------ */
     const dateTimeElement = document.querySelector('.date-time');
 
     function updateDateTime() {
@@ -11,17 +13,64 @@ document.addEventListener('DOMContentLoaded', () => {
             day: 'numeric',
             month: 'short'
         };
-        // Форматуємо дату відповідно до локалі (українська)
-        const formattedDate = now.toLocaleDateString('uk-UA', options).replace(',', '');
-        dateTimeElement.textContent = formattedDate;
+        const formattedDate = now
+            .toLocaleDateString('uk-UA', options)
+            .replace(',', '');
+        if (dateTimeElement) {
+            dateTimeElement.textContent = formattedDate;
+        }
     }
 
-    // Оновлюємо час одразу і потім кожну хвилину
     updateDateTime();
     setInterval(updateDateTime, 60000);
 
-    // 2. Ефект "стрибка" в Dock (використовуємо CSS, але JS потрібен для динаміки)
-    // Тут у нас вже є CSS-стилі :hover, тому JS потрібен для складніших ефектів,
-    // як-от динамічне збільшення сусідніх елементів, але для простої імітації
-    // достатньо CSS. Залишимо це для майбутнього розширення!
+    /* -----------------------------
+       2. ЕФЕКТ "СТРИБКА" В DOCK
+    ------------------------------ */
+    const dockItems = document.querySelectorAll('.dock-item');
+
+    dockItems.forEach((item) => {
+        item.addEventListener('mouseenter', () => {
+            // Додаємо клас анімації
+            item.classList.add('active');
+            // Плавне збільшення сусідніх іконок
+            const prev = item.previousElementSibling;
+            const next = item.nextElementSibling;
+            if (prev) prev.classList.add('nearby');
+            if (next) next.classList.add('nearby');
+        });
+
+        item.addEventListener('mouseleave', () => {
+            // Прибираємо класи після короткої затримки
+            item.classList.remove('active');
+            const prev = item.previousElementSibling;
+            const next = item.nextElementSibling;
+            if (prev) prev.classList.remove('nearby');
+            if (next) next.classList.remove('nearby');
+        });
+    });
+
+    /* -----------------------------
+       3. АВТОМАТИЧНЕ РОЗТАШУВАННЯ ІКОН НА РОБОЧОМУ СТОЛІ
+    ------------------------------ */
+    const desktopIcons = document.querySelectorAll('.desktop-icon');
+    desktopIcons.forEach((icon, index) => {
+        icon.style.left = `${20 + (index % 2) * 100}px`;
+        icon.style.top = `${20 + Math.floor(index / 2) * 100}px`;
+        icon.style.opacity = '0';
+        // Анімаційна поява
+        setTimeout(() => {
+            icon.style.transition = 'opacity 0.6s ease';
+            icon.style.opacity = '1';
+        }, 300 + index * 100);
+    });
+
+    /* -----------------------------
+       4. ПЛАВНА ПОЯВА ІНТЕРФЕЙСУ (як macOS login fade-in)
+    ------------------------------ */
+    document.body.style.opacity = '0';
+    setTimeout(() => {
+        document.body.style.transition = 'opacity 1.2s ease';
+        document.body.style.opacity = '1';
+    }, 200);
 });

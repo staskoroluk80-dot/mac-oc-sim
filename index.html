@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>macOS Clone</title>
+    <title>macOS Air 2024 Simulation</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+    <!-- Верхня панель -->
     <header id="menubar">
         <nav class="left-side">
             <span class="apple-logo"></span>
@@ -24,27 +25,31 @@
             <span class="icon">📶</span>
             <span class="icon">🔋</span>
             <span class="icon">🔔</span>
-            <span class="date-time">10:46 Чт 30 Жов</span>
+            <span class="date-time"></span>
         </nav>
     </header>
 
+    <!-- Робочий стіл -->
+    <main id="desktop">
+        <div class="desktop-icon" data-name="Macintosh HD">💽</div>
+        <div class="desktop-icon" data-name="Documents">📁</div>
+        <div class="desktop-icon" data-name="Downloads">⬇️</div>
+        <div class="desktop-icon" data-name="Trash">🗑️</div>
+    </main>
+
+    <!-- Dock -->
     <footer id="dock">
-        <div class="dock-item" data-name="Finder">
-            <div class="icon-shape finder"></div>
-            <div class="dot active"></div>
-        </div>
-        <div class="dock-item" data-name="Safari">
-            <div class="icon-shape safari"></div>
-        </div>
-        <div class="dock-item" data-name="Пошта">
-            <div class="icon-shape mail"></div>
-        </div>
-        <div class="dock-item" data-name="Музика">
-            <div class="icon-shape music"></div>
-        </div>
-        <div class="dock-item" data-name="Налаштування">
-            <div class="icon-shape settings"></div>
-        </div>
+        <div class="dock-item" data-name="Finder"><div class="icon-shape finder"></div><div class="dot active"></div></div>
+        <div class="dock-item" data-name="Safari"><div class="icon-shape safari"></div></div>
+        <div class="dock-item" data-name="Mail"><div class="icon-shape mail"></div></div>
+        <div class="dock-item" data-name="Messages"><div class="icon-shape messages"></div></div>
+        <div class="dock-item" data-name="Music"><div class="icon-shape music"></div></div>
+        <div class="dock-item" data-name="Photos"><div class="icon-shape photos"></div></div>
+        <div class="dock-item" data-name="Calendar"><div class="icon-shape calendar"></div></div>
+        <div class="dock-item" data-name="Notes"><div class="icon-shape notes"></div></div>
+        <div class="dock-item" data-name="Settings"><div class="icon-shape settings"></div></div>
+        <div class="dock-item" data-name="App Store"><div class="icon-shape appstore"></div></div>
+        <div class="dock-item" data-name="Trash"><div class="icon-shape trash"></div></div>
     </footer>
 
     <script src="script.js"></script>
