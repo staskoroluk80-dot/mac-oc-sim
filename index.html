@@ -61,21 +61,34 @@
             justify-content: center;
             color: white;
             text-shadow: 0 1px 3px rgba(0,0,0,0.6);
-            font-size: 42px;
             position: relative;
             cursor: default;
             transition: transform 0.2s;
+            width: 80px;
+            height: 80px;
         }
         .desktop-icon:hover {
             transform: scale(1.05);
         }
+
         .desktop-icon::after {
             content: attr(data-name);
             position: absolute;
-            bottom: -22px;
-            font-size: 13px;
+            bottom: -25px;
+            font-size: 12px;
             color: #fff;
             opacity: 0.9;
+            text-align: center;
+            width: 100%;
+        }
+
+        .desktop-icon-image {
+            width: 48px;
+            height: 48px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            margin-bottom: 5px;
         }
 
         /* === Dock === */
@@ -162,14 +175,9 @@
         }
         .dot.active { opacity: 1; }
 
-        /* === Finder Window === */
-        .finder-window {
+        /* === Application Windows === */
+        .app-window {
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 800px;
-            height: 500px;
             background: rgba(255, 255, 255, 0.95);
             border-radius: 12px;
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
@@ -181,12 +189,13 @@
             color: #333;
         }
 
-        .finder-header {
+        .window-header {
             display: flex;
             align-items: center;
             padding: 10px 15px;
             background: rgba(255, 255, 255, 0.8);
             border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            cursor: move;
         }
 
         .window-controls {
@@ -205,6 +214,21 @@
         .close { background: #ff5f57; }
         .minimize { background: #ffbd2e; }
         .maximize { background: #28ca42; }
+
+        .window-title {
+            flex: 1;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* === Finder Window === */
+        #finderWindow {
+            width: 800px;
+            height: 500px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
 
         .finder-toolbar {
             display: flex;
@@ -291,6 +315,7 @@
             border-radius: 8px;
             cursor: pointer;
             transition: background 0.2s;
+            position: relative;
         }
 
         .file-item:hover {
@@ -318,6 +343,7 @@
             font-size: 12px;
             text-align: center;
             word-break: break-word;
+            max-width: 80px;
         }
 
         .path-bar {
@@ -342,6 +368,54 @@
         .path-separator {
             margin: 0 5px;
             color: #999;
+        }
+
+        /* === Context Menu === */
+        .context-menu {
+            position: fixed;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 5px 0;
+            z-index: 1003;
+            display: none;
+            min-width: 180px;
+        }
+
+        .context-menu-item {
+            padding: 8px 15px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background 0.2s;
+        }
+
+        .context-menu-item:hover {
+            background: rgba(0, 122, 255, 0.1);
+        }
+
+        .context-menu-divider {
+            height: 1px;
+            background: rgba(0, 0, 0, 0.1);
+            margin: 5px 0;
+        }
+
+        /* === Other Apps === */
+        #safariWindow, #mailWindow, #settingsWindow {
+            width: 600px;
+            height: 400px;
+            top: 100px;
+            left: 100px;
+        }
+
+        .app-content {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #666;
         }
     </style>
 </head>
@@ -370,10 +444,18 @@
 
     <!-- Робочий стіл -->
     <main id="desktop">
-        <div class="desktop-icon" data-name="Macintosh HD">💽</div>
-        <div class="desktop-icon" data-name="Documents">📁</div>
-        <div class="desktop-icon" data-name="Downloads">⬇️</div>
-        <div class="desktop-icon" data-name="Trash">🗑️</div>
+        <div class="desktop-icon" data-name="Macintosh HD">
+            <div class="desktop-icon-image" style="background-image: url('Folder.png')"></div>
+        </div>
+        <div class="desktop-icon" data-name="Files">
+            <div class="desktop-icon-image" style="background-image: url('Folder.png')"></div>
+        </div>
+        <div class="desktop-icon" data-name="Downloads">
+            <div class="desktop-icon-image" style="background-image: url('Folder.png')"></div>
+        </div>
+        <div class="desktop-icon" data-name="Trash">
+            <div class="desktop-icon-image" style="background-image: url('Trash.png')"></div>
+        </div>
     </main>
 
     <!-- Dock -->
@@ -392,26 +474,18 @@
     </footer>
 
     <!-- Finder Window -->
-    <div class="finder-window" id="finderWindow">
-        <div class="finder-header">
+    <div class="app-window" id="finderWindow">
+        <div class="window-header">
             <div class="window-controls">
-                <div class="window-control close" id="closeFinder"></div>
-                <div class="window-control minimize" id="minimizeFinder"></div>
-                <div class="window-control maximize" id="maximizeFinder"></div>
+                <div class="window-control close" data-window="finderWindow"></div>
+                <div class="window-control minimize"></div>
+                <div class="window-control maximize"></div>
             </div>
-            <div class="path-bar" id="pathBar">
-                <div class="path-segment">Macintosh HD</div>
-                <div class="path-separator">></div>
-                <div class="path-segment">Користувачі</div>
-                <div class="path-separator">></div>
-                <div class="path-segment">Гість</div>
-                <div class="path-separator">></div>
-                <div class="path-segment">Документи</div>
-            </div>
+            <div class="window-title">Files</div>
         </div>
         <div class="finder-toolbar">
-            <div class="toolbar-button">Назад</div>
-            <div class="toolbar-button">Вперед</div>
+            <div class="toolbar-button" id="newFolderBtn">Нова папка</div>
+            <div class="toolbar-button" id="deleteFolderBtn">Видалити</div>
             <div class="toolbar-button">Перегляд</div>
             <div class="toolbar-button">Сортувати</div>
         </div>
@@ -425,70 +499,80 @@
                     </div>
                     <div class="sidebar-item">
                         <span class="sidebar-icon">📁</span>
-                        <span>Документи</span>
+                        <span>Files</span>
                     </div>
                     <div class="sidebar-item">
                         <span class="sidebar-icon">⬇️</span>
                         <span>Завантаження</span>
                     </div>
-                    <div class="sidebar-item">
-                        <span class="sidebar-icon">🖼️</span>
-                        <span>Зображення</span>
-                    </div>
-                </div>
-                <div class="sidebar-section">
-                    <div class="sidebar-title">Пристрої</div>
-                    <div class="sidebar-item">
-                        <span class="sidebar-icon">💽</span>
-                        <span>Macintosh HD</span>
-                    </div>
-                    <div class="sidebar-item">
-                        <span class="sidebar-icon">📀</span>
-                        <span>CD Диск</span>
-                    </div>
                 </div>
             </div>
             <div class="files-area">
                 <div class="files-grid" id="filesGrid">
-                    <div class="file-item" data-type="folder">
-                        <div class="file-icon folder-icon"></div>
-                        <div class="file-name">Робота</div>
-                    </div>
-                    <div class="file-item" data-type="folder">
-                        <div class="file-icon folder-icon"></div>
-                        <div class="file-name">Особисте</div>
-                    </div>
-                    <div class="file-item" data-type="folder">
-                        <div class="file-icon folder-icon"></div>
-                        <div class="file-name">Проекти</div>
-                    </div>
-                    <div class="file-item" data-type="file">
-                        <div class="file-icon">📄</div>
-                        <div class="file-name">Звіт.pdf</div>
-                    </div>
-                    <div class="file-item" data-type="file">
-                        <div class="file-icon">📄</div>
-                        <div class="file-name">Презентація.key</div>
-                    </div>
-                    <div class="file-item" data-type="file">
-                        <div class="file-icon">🖼️</div>
-                        <div class="file-name">Фото.jpg</div>
-                    </div>
-                    <div class="file-item" data-type="file">
-                        <div class="file-icon">🎵</div>
-                        <div class="file-name">Музика.mp3</div>
-                    </div>
-                    <div class="file-item" data-type="file">
-                        <div class="file-icon">🎥</div>
-                        <div class="file-name">Відео.mov</div>
-                    </div>
+                    <!-- Folders will be dynamically added here -->
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Other App Windows -->
+    <div class="app-window" id="safariWindow">
+        <div class="window-header">
+            <div class="window-controls">
+                <div class="window-control close" data-window="safariWindow"></div>
+                <div class="window-control minimize"></div>
+                <div class="window-control maximize"></div>
+            </div>
+            <div class="window-title">Safari</div>
+        </div>
+        <div class="app-content">
+            Веб-браузер Safari
+        </div>
+    </div>
+
+    <div class="app-window" id="mailWindow">
+        <div class="window-header">
+            <div class="window-controls">
+                <div class="window-control close" data-window="mailWindow"></div>
+                <div class="window-control minimize"></div>
+                <div class="window-control maximize"></div>
+            </div>
+            <div class="window-title">Mail</div>
+        </div>
+        <div class="app-content">
+            Поштовий клієнт
+        </div>
+    </div>
+
+    <div class="app-window" id="settingsWindow">
+        <div class="window-header">
+            <div class="window-controls">
+                <div class="window-control close" data-window="settingsWindow"></div>
+                <div class="window-control minimize"></div>
+                <div class="window-control maximize"></div>
+            </div>
+            <div class="window-title">Settings</div>
+        </div>
+        <div class="app-content">
+            Налаштування системи
+        </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div class="context-menu" id="contextMenu">
+        <div class="context-menu-item" id="contextNewFolder">Нова папка</div>
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item" id="contextDelete">Видалити</div>
+        <div class="context-menu-item">Перейменувати</div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            let folderCounter = 1;
+            let selectedFolder = null;
+            let isDragging = false;
+            let dragOffset = { x: 0, y: 0 };
+
             /* -----------------------------
                1. ОНОВЛЕННЯ ЧАСУ В MENUBAR
             ------------------------------ */
@@ -521,9 +605,7 @@
 
             dockItems.forEach((item) => {
                 item.addEventListener('mouseenter', () => {
-                    // Додаємо клас анімації
                     item.classList.add('active');
-                    // Плавне збільшення сусідніх іконок
                     const prev = item.previousElementSibling;
                     const next = item.nextElementSibling;
                     if (prev) prev.classList.add('nearby');
@@ -531,7 +613,6 @@
                 });
 
                 item.addEventListener('mouseleave', () => {
-                    // Прибираємо класи після короткої затримки
                     item.classList.remove('active');
                     const prev = item.previousElementSibling;
                     const next = item.nextElementSibling;
@@ -541,22 +622,184 @@
             });
 
             /* -----------------------------
-               3. АВТОМАТИЧНЕ РОЗТАШУВАННЯ ІКОН НА РОБОЧОМУ СТОЛІ
+               3. УПРАВЛІННЯ ВІКНАМИ
             ------------------------------ */
-            const desktopIcons = document.querySelectorAll('.desktop-icon');
-            desktopIcons.forEach((icon, index) => {
-                icon.style.left = `${20 + (index % 2) * 100}px`;
-                icon.style.top = `${20 + Math.floor(index / 2) * 100}px`;
-                icon.style.opacity = '0';
-                // Анімаційна поява
-                setTimeout(() => {
-                    icon.style.transition = 'opacity 0.6s ease';
-                    icon.style.opacity = '1';
-                }, 300 + index * 100);
+            const windows = {
+                finderWindow: document.getElementById('finderWindow'),
+                safariWindow: document.getElementById('safariWindow'),
+                mailWindow: document.getElementById('mailWindow'),
+                settingsWindow: document.getElementById('settingsWindow')
+            };
+
+            // Функція закриття вікон
+            function closeWindow(windowId) {
+                if (windows[windowId]) {
+                    windows[windowId].style.display = 'none';
+                    // Видаляємо активну точку з Dock
+                    const appName = windowId.replace('Window', '');
+                    const dockItem = document.querySelector(`.dock-item[data-name="${appName.charAt(0).toUpperCase() + appName.slice(1)}"]`);
+                    if (dockItem) {
+                        dockItem.querySelector('.dot').classList.remove('active');
+                    }
+                }
+            }
+
+            // Додаємо обробники закриття для всіх вікон
+            document.querySelectorAll('.window-control.close').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const windowId = e.target.getAttribute('data-window');
+                    closeWindow(windowId);
+                });
+            });
+
+            // Відкриття додатків з Dock
+            document.querySelector('.dock-item[data-name="Finder"]').addEventListener('click', () => openApp('finderWindow', 'Finder'));
+            document.querySelector('.dock-item[data-name="Safari"]').addEventListener('click', () => openApp('safariWindow', 'Safari'));
+            document.querySelector('.dock-item[data-name="Mail"]').addEventListener('click', () => openApp('mailWindow', 'Mail'));
+            document.querySelector('.dock-item[data-name="Settings"]').addEventListener('click', () => openApp('settingsWindow', 'Settings'));
+
+            // Відкриття Files з робочого столу
+            document.querySelector('.desktop-icon[data-name="Files"]').addEventListener('click', () => openApp('finderWindow', 'Finder'));
+
+            function openApp(windowId, appName) {
+                if (windows[windowId]) {
+                    windows[windowId].style.display = 'flex';
+                    // Додаємо активну точку в Dock
+                    const dockItem = document.querySelector(`.dock-item[data-name="${appName}"]`);
+                    if (dockItem) {
+                        dockItem.querySelector('.dot').classList.add('active');
+                    }
+                }
+            }
+
+            /* -----------------------------
+               4. СТВОРЕННЯ ТА ВИДАЛЕННЯ ПАПОК
+            ------------------------------ */
+            const filesGrid = document.getElementById('filesGrid');
+            const newFolderBtn = document.getElementById('newFolderBtn');
+            const deleteFolderBtn = document.getElementById('deleteFolderBtn');
+
+            function createNewFolder() {
+                const folderName = `Нова папка ${folderCounter}`;
+                folderCounter++;
+                
+                const folderElement = document.createElement('div');
+                folderElement.className = 'file-item';
+                folderElement.setAttribute('data-type', 'folder');
+                folderElement.innerHTML = `
+                    <div class="file-icon folder-icon"></div>
+                    <div class="file-name">${folderName}</div>
+                `;
+
+                // Додаємо обробники подій для нової папки
+                folderElement.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    selectFolder(folderElement);
+                });
+
+                folderElement.addEventListener('dblclick', () => {
+                    alert(`Відкриваємо папку: ${folderName}`);
+                });
+
+                folderElement.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    selectFolder(folderElement);
+                    showContextMenu(e.pageX, e.pageY);
+                });
+
+                filesGrid.appendChild(folderElement);
+            }
+
+            function selectFolder(folderElement) {
+                // Знімаємо виділення з усіх папок
+                document.querySelectorAll('.file-item').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                // Виділяємо поточну папку
+                folderElement.classList.add('selected');
+                selectedFolder = folderElement;
+            }
+
+            function deleteSelectedFolder() {
+                if (selectedFolder) {
+                    selectedFolder.remove();
+                    selectedFolder = null;
+                }
+            }
+
+            newFolderBtn.addEventListener('click', createNewFolder);
+            deleteFolderBtn.addEventListener('click', deleteSelectedFolder);
+
+            /* -----------------------------
+               5. КОНТЕКСТНЕ МЕНЮ
+            ------------------------------ */
+            const contextMenu = document.getElementById('contextMenu');
+            const contextNewFolder = document.getElementById('contextNewFolder');
+            const contextDelete = document.getElementById('contextDelete');
+
+            function showContextMenu(x, y) {
+                contextMenu.style.left = x + 'px';
+                contextMenu.style.top = y + 'px';
+                contextMenu.style.display = 'block';
+            }
+
+            function hideContextMenu() {
+                contextMenu.style.display = 'none';
+            }
+
+            contextNewFolder.addEventListener('click', () => {
+                createNewFolder();
+                hideContextMenu();
+            });
+
+            contextDelete.addEventListener('click', () => {
+                deleteSelectedFolder();
+                hideContextMenu();
+            });
+
+            // Ховаємо контекстне меню при кліку будь-де
+            document.addEventListener('click', hideContextMenu);
+
+            // Показуємо контекстне меню для порожньої області
+            filesGrid.addEventListener('contextmenu', (e) => {
+                if (!e.target.closest('.file-item')) {
+                    e.preventDefault();
+                    selectedFolder = null;
+                    showContextMenu(e.pageX, e.pageY);
+                }
             });
 
             /* -----------------------------
-               4. ПЛАВНА ПОЯВА ІНТЕРФЕЙСУ (як macOS login fade-in)
+               6. ПЕРЕМІЩЕННЯ ВІКОН
+            ------------------------------ */
+            document.querySelectorAll('.window-header').forEach(header => {
+                header.addEventListener('mousedown', (e) => {
+                    if (!e.target.classList.contains('window-control')) {
+                        isDragging = true;
+                        const window = header.parentElement;
+                        dragOffset.x = e.clientX - window.offsetLeft;
+                        dragOffset.y = e.clientY - window.offsetTop;
+                    }
+                });
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (isDragging) {
+                    const activeWindow = document.querySelector('.app-window[style*="display: flex"]');
+                    if (activeWindow) {
+                        activeWindow.style.left = (e.clientX - dragOffset.x) + 'px';
+                        activeWindow.style.top = (e.clientY - dragOffset.y) + 'px';
+                        activeWindow.style.transform = 'none';
+                    }
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+
+            /* -----------------------------
+               7. ПЛАВНА ПОЯВА ІНТЕРФЕЙСУ
             ------------------------------ */
             document.body.style.opacity = '0';
             setTimeout(() => {
@@ -564,111 +807,11 @@
                 document.body.style.opacity = '1';
             }, 200);
 
-            /* -----------------------------
-               5. ПРОВІДНИК ФАЙЛІВ
-            ------------------------------ */
-            const finderWindow = document.getElementById('finderWindow');
-            const closeFinderBtn = document.getElementById('closeFinder');
-            const minimizeFinderBtn = document.getElementById('minimizeFinder');
-            const maximizeFinderBtn = document.getElementById('maximizeFinder');
-            const filesGrid = document.getElementById('filesGrid');
-
-            function openFinder() {
-                finderWindow.style.display = 'flex';
-                // Оновлюємо активний стан в Dock
-                document.querySelectorAll('.dock-item .dot').forEach(dot => {
-                    dot.classList.remove('active');
-                });
-                document.querySelector('.dock-item[data-name="Finder"] .dot').classList.add('active');
-            }
-
-            function closeFinder() {
-                finderWindow.style.display = 'none';
-                document.querySelector('.dock-item[data-name="Finder"] .dot').classList.remove('active');
-            }
-
-            closeFinderBtn.addEventListener('click', closeFinder);
-            
-            minimizeFinderBtn.addEventListener('click', () => {
-                finderWindow.style.display = 'none';
-                document.querySelector('.dock-item[data-name="Finder"] .dot').classList.remove('active');
-            });
-            
-            maximizeFinderBtn.addEventListener('click', () => {
-                if (finderWindow.style.width === '100vw' && finderWindow.style.height === '100vh') {
-                    finderWindow.style.width = '800px';
-                    finderWindow.style.height = '500px';
-                    finderWindow.style.top = '50%';
-                    finderWindow.style.left = '50%';
-                    finderWindow.style.transform = 'translate(-50%, -50%)';
-                } else {
-                    finderWindow.style.width = '100vw';
-                    finderWindow.style.height = '100vh';
-                    finderWindow.style.top = '0';
-                    finderWindow.style.left = '0';
-                    finderWindow.style.transform = 'none';
-                }
-            });
-
-            // Відкриття провідника при кліку на Finder в Dock
-            document.querySelector('.dock-item[data-name="Finder"]').addEventListener('click', openFinder);
-
-            // Відкриття провідника при кліку на Documents на робочому столі
-            document.querySelector('.desktop-icon[data-name="Documents"]').addEventListener('click', openFinder);
-
-            // Виділення файлів
-            filesGrid.addEventListener('click', (e) => {
-                const fileItem = e.target.closest('.file-item');
-                if (fileItem) {
-                    // Знімаємо виділення з усіх елементів
-                    document.querySelectorAll('.file-item').forEach(item => {
-                        item.classList.remove('selected');
-                    });
-                    // Додаємо виділення до поточного елемента
-                    fileItem.classList.add('selected');
-                }
-            });
-
-            // Подвійний клік для відкриття файлів/папок
-            filesGrid.addEventListener('dblclick', (e) => {
-                const fileItem = e.target.closest('.file-item');
-                if (fileItem) {
-                    const type = fileItem.getAttribute('data-type');
-                    const name = fileItem.querySelector('.file-name').textContent;
-                    
-                    if (type === 'folder') {
-                        alert(`Відкриваємо папку: ${name}`);
-                        // Тут можна реалізувати навігацію по папках
-                    } else {
-                        alert(`Відкриваємо файл: ${name}`);
-                        // Тут можна реалізувати відкриття файлів
-                    }
-                }
-            });
-
-            // Навігація по шляху
-            document.querySelectorAll('.path-segment').forEach(segment => {
-                segment.addEventListener('click', () => {
-                    alert(`Переходимо до: ${segment.textContent}`);
-                    // Тут можна реалізувати навігацію по шляху
-                });
-            });
-
-            // Навігація в бічній панелі
-            document.querySelectorAll('.sidebar-item').forEach(item => {
-                item.addEventListener('click', () => {
-                    // Видаляємо активний клас з усіх елементів
-                    document.querySelectorAll('.sidebar-item').forEach(i => {
-                        i.classList.remove('active');
-                    });
-                    // Додаємо активний клас до поточного елемента
-                    item.classList.add('active');
-                    
-                    const name = item.querySelector('span:last-child').textContent;
-                    alert(`Відкриваємо: ${name}`);
-                    // Тут можна реалізувати навігацію
-                });
-            });
+            // Створюємо кілька початкових папок
+            setTimeout(() => {
+                createNewFolder();
+                createNewFolder();
+            }, 500);
         });
     </script>
 </body>
