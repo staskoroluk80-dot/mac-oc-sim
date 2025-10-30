@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
         item.addEventListener('mouseenter', () => {
             // Додаємо клас анімації
             item.classList.add('active');
+            
             // Плавне збільшення сусідніх іконок
             const prev = item.previousElementSibling;
             const next = item.nextElementSibling;
@@ -42,11 +43,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         item.addEventListener('mouseleave', () => {
             // Прибираємо класи після короткої затримки
-            item.classList.remove('active');
-            const prev = item.previousElementSibling;
-            const next = item.nextElementSibling;
-            if (prev) prev.classList.remove('nearby');
-            if (next) next.classList.remove('nearby');
+            setTimeout(() => {
+                item.classList.remove('active');
+                const prev = item.previousElementSibling;
+                const next = item.nextElementSibling;
+                if (prev) prev.classList.remove('nearby');
+                if (next) next.classList.remove('nearby');
+            }, 100);
         });
     });
 
@@ -55,8 +58,6 @@ document.addEventListener('DOMContentLoaded', () => {
     ------------------------------ */
     const desktopIcons = document.querySelectorAll('.desktop-icon');
     desktopIcons.forEach((icon, index) => {
-        icon.style.left = `${20 + (index % 2) * 100}px`;
-        icon.style.top = `${20 + Math.floor(index / 2) * 100}px`;
         icon.style.opacity = '0';
         // Анімаційна поява
         setTimeout(() => {
@@ -73,4 +74,15 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.style.transition = 'opacity 1.2s ease';
         document.body.style.opacity = '1';
     }, 200);
+
+    /* -----------------------------
+       5. КЛІК ПО ІКОНАХ НА РОБОЧОМУ СТОЛІ
+    ------------------------------ */
+    desktopIcons.forEach(icon => {
+        icon.addEventListener('click', () => {
+            const name = icon.getAttribute('data-name');
+            console.log(`Clicked on: ${name}`);
+            // Тут можна додати функціонал відкриття папок/файлів
+        });
+    });
 });
