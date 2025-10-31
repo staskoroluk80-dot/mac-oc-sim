@@ -5,12 +5,811 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>macOS Air 2024 Simulation</title>
     <style>
-        /* ... (всі стилі залишаються без змін) ... */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: radial-gradient(circle at 40% 30%, #4356a6, #24264e 80%);
+            min-height: 100vh;
+            overflow: hidden;
+            color: rgba(255, 255, 255, 0.9);
+            user-select: none;
+        }
+
+        /* === Меню === */
+        #menubar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 18px;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.92);
+            background-color: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(45px) saturate(180%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+            z-index: 1000;
+        }
+
+        #menubar nav span {
+            margin-right: 16px;
+            cursor: default;
+            padding: 3px 8px;
+            border-radius: 6px;
+            transition: background-color 0.15s ease;
+        }
+        #menubar nav span:hover { background-color: rgba(255, 255, 255, 0.15); }
+
+        /* === Робочий стіл === */
+        #desktop {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, 90px);
+            grid-auto-rows: 90px;
+            gap: 15px;
+            padding: 60px 20px;
+            justify-content: start;
+        }
+
+        .desktop-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+            position: relative;
+            cursor: default;
+            transition: transform 0.2s;
+            width: 80px;
+            height: 80px;
+        }
+        .desktop-icon:hover {
+            transform: scale(1.05);
+        }
+
+        .desktop-icon::after {
+            content: attr(data-name);
+            position: absolute;
+            bottom: -25px;
+            font-size: 12px;
+            color: #fff;
+            opacity: 0.9;
+            text-align: center;
+            width: 100%;
+        }
+
+        .desktop-icon-image {
+            width: 48px;
+            height: 48px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            margin-bottom: 5px;
+        }
+
+        /* === Dock === */
+        #dock {
+            position: fixed;
+            bottom: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: flex-end;
+            padding: 12px 18px;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(45px) saturate(180%);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.25);
+            transition: all 0.3s ease;
+            z-index: 999;
+        }
+
+        .dock-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 6px;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.3s cubic-bezier(.22,.61,.36,1);
+        }
+
+        .icon-shape {
+            width: 58px;
+            height: 58px;
+            border-radius: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+            overflow: hidden;
+            transition: all 0.25s ease;
+            background-size: cover;
+            background-position: center;
+        }
+        .dock-item:hover { transform: translateY(-10px) scale(1.12); }
+
+        /* === Dock icons with images === */
+        .finder { background: linear-gradient(135deg, #5A9BFF, #2D62D3); }
+        .safari { background: radial-gradient(circle at center, #A3D4FF 10%, #357CFF 75%); border-radius: 50%; }
+        .mail { background-image: url('Mail.png'); }
+        .messages { background: linear-gradient(145deg, #4AC0FF, #1B89E9); }
+        .music { background: linear-gradient(45deg, #EE68AA, #D93780); }
+        .photos { background: conic-gradient(#ffdc5e, #fa7a35, #ef366e, #9b47ef, #59c7f9, #3adb5a, #ffdc5e); border-radius: 50%; }
+        .calendar { background: linear-gradient(145deg, #fff, #ddd); color: #333; }
+        .notes { background: linear-gradient(to bottom, #fff59d, #fbc02d); color: #333; }
+        .settings { background-image: url('Settings.png'); border-radius: 50%; }
+        .appstore { background: linear-gradient(135deg, #3a9bfd, #0066ff); border-radius: 50%; }
+        .trash { background-image: url('Trash.png'); border-radius: 10px; }
+        .code-editor { background: linear-gradient(135deg, #6e45e2, #88d3ce); }
+
+        /* === Tooltip === */
+        .dock-item:hover::after {
+            content: attr(data-name);
+            position: absolute;
+            bottom: 80px;
+            background-color: rgba(255, 255, 255, 0.95);
+            color: #000;
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            pointer-events: none;
+            animation: fadeInUp 0.25s ease forwards;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(0); }
+            to { opacity: 1; transform: translateY(-6px); }
+        }
+
+        /* === Active indicator === */
+        .dot {
+            width: 5px;
+            height: 5px;
+            background-color: #fff;
+            border-radius: 50%;
+            margin-top: 7px;
+            opacity: 0;
+        }
+        .dot.active { opacity: 1; }
+
+        /* === Application Windows === */
+        .app-window {
+            position: fixed;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(20px);
+            display: none;
+            flex-direction: column;
+            z-index: 1002;
+            overflow: hidden;
+            color: #333;
+        }
+
+        .window-header {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.8);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            cursor: move;
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 8px;
+            margin-right: 15px;
+        }
+
+        .window-control {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .close { background: #ff5f57; }
+        .minimize { background: #ffbd2e; }
+        .maximize { background: #28ca42; }
+
+        .window-title {
+            flex: 1;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* === Finder Window === */
+        #finderWindow {
+            width: 800px;
+            height: 500px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .finder-toolbar {
+            display: flex;
+            padding: 8px 15px;
+            background: rgba(255, 255, 255, 0.7);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            gap: 15px;
+        }
+
+        .toolbar-button {
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background 0.2s;
+        }
+
+        .toolbar-button:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .finder-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 200px;
+            background: rgba(245, 245, 245, 0.8);
+            border-right: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 15px 0;
+        }
+
+        .sidebar-section {
+            margin-bottom: 20px;
+        }
+
+        .sidebar-title {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 5px 15px;
+            color: #666;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .sidebar-item:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .sidebar-item.active {
+            background: rgba(0, 122, 255, 0.1);
+        }
+
+        .sidebar-icon {
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        .files-area {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+        .files-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 15px;
+        }
+
+        .file-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            position: relative;
+        }
+
+        .file-item:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .file-item.selected {
+            background: rgba(0, 122, 255, 0.1);
+        }
+
+        .file-icon {
+            width: 48px;
+            height: 48px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            margin-bottom: 8px;
+        }
+
+        .folder-icon {
+            background-image: url('Folder.png');
+        }
+
+        .html-file { background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%23E44D26" d="M4.136 3.012h15.729l-1.431 16.15-6.451 1.826-6.414-1.826-1.433-16.15zm5.266 7.302l-.2-2.29h7.199l.2-1.978h-9.599l.6 6.678h6.264l-.266 2.876-2.099.57v.004h-.065v-.003l-2.099-.57-.134-1.477h-2.064l.201 2.813 3.842 1.06h.046v-.001h.032l.014.001 3.868-1.061.534-6.017h-7.134z"/></svg>'); }
+        .css-file { background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%231572B6" d="M4.192 3.143h15.616l-1.431 16.125-6.383 1.8-6.385-1.8-1.417-16.125zm2.735 2.948h-.599l.401 4.426h5.294l-.133 1.328h-5.162l.4 4.426h5.745l-.2 1.937-2.87.792-2.896-.792-.184-2.078h-1.649l.267 3.244 4.924 1.388h.064l4.924-1.388.534-6.076h-7.999l-.133-1.329h8.265l.133-1.328h-8.398z"/></svg>'); }
+        .js-file { background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%23F7DF1E" d="M3 3h18v18H3V3zm8.5 14.5c0 .88-.56 1.64-1.53 1.95-.53.17-1.08.26-1.67.26-.47 0-.92-.06-1.36-.19l.34-1.73c.29.12.68.19 1.02.19.44 0 .88-.09 1.02-.26.14-.17.21-.44.21-.82V9h2.07v8.5zm5.36-1.44c-.53.79-1.24 1.18-2.13 1.18-.62 0-1.12-.17-1.5-.51-.38-.34-.56-.79-.56-1.35 0-.53.17-.97.51-1.31.34-.34.85-.62 1.53-.85.85-.26 1.36-.44 1.53-.53.17-.09.26-.26.26-.53 0-.29-.12-.47-.35-.56-.23-.09-.62-.14-1.17-.14-.5 0-.94.08-1.31.23l-.35-1.67c.47-.2 1.06-.29 1.77-.29.62 0 1.14.11 1.56.32.42.21.74.53.97.94.23.41.35.88.35 1.41 0 .62-.23 1.14-.68 1.56-.45.42-1.08.74-1.89.97-.5.15-.85.29-1.05.41-.2.12-.29.29-.29.53 0 .23.11.41.32.53.21.12.56.18 1.05.18.56 0 1.05-.11 1.47-.32l.35 1.67c-.41.23-.97.35-1.67.35-.79 0-1.44-.17-1.95-.51-.51-.34-.85-.79-1.02-1.35-.17-.56-.26-1.17-.26-1.83 0-.62.14-1.17.41-1.65.27-.48.68-.85 1.23-1.11.55-.26 1.23-.44 2.04-.56.8-.12 1.38-.26 1.73-.41.35-.15.53-.41.53-.79 0-.32-.14-.56-.41-.71-.27-.15-.68-.23-1.23-.23-.5 0-.94.08-1.31.23l-.35-1.67c.5-.2 1.14-.29 1.92-.29.68 0 1.26.11 1.74.32.48.21.85.53 1.11.94.26.41.39.88.39 1.41 0 .62-.23 1.14-.68 1.56-.45.42-1.08.74-1.89.97z"/></svg>'); }
+
+        .file-name {
+            font-size: 12px;
+            text-align: center;
+            word-break: break-word;
+            max-width: 80px;
+        }
+
+        .path-bar {
+            display: flex;
+            padding: 8px 15px;
+            background: rgba(245, 245, 245, 0.8);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            font-size: 13px;
+        }
+
+        .path-segment {
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .path-segment:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .path-separator {
+            margin: 0 5px;
+            color: #999;
+        }
+
+        /* === Code Editor Window === */
+        #codeEditorWindow {
+            width: 1000px;
+            height: 700px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .editor-toolbar {
+            display: flex;
+            padding: 8px 15px;
+            background: rgba(255, 255, 255, 0.7);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            gap: 10px;
+            align-items: center;
+        }
+
+        .editor-content {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .editor-sidebar {
+            width: 250px;
+            background: rgba(245, 245, 245, 0.8);
+            border-right: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+        .editor-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .editor-tabs {
+            display: flex;
+            background: rgba(240, 240, 240, 0.8);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            min-height: 35px;
+        }
+
+        .editor-tab {
+            padding: 8px 15px;
+            cursor: pointer;
+            border-right: 1px solid rgba(0, 0, 0, 0.1);
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(240, 240, 240, 0.8);
+        }
+
+        .editor-tab.active {
+            background: white;
+        }
+
+        .tab-close {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .tab-close:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .editor-panes {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .code-pane {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .preview-pane {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pane-header {
+            padding: 8px 15px;
+            background: rgba(245, 245, 245, 0.8);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .code-area {
+            flex: 1;
+            padding: 15px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            overflow: auto;
+            outline: none;
+            white-space: pre;
+            tab-size: 4;
+        }
+
+        .preview-area {
+            flex: 1;
+            padding: 15px;
+            overflow: auto;
+            background: white;
+        }
+
+        .file-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .file-list-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        .file-list-item:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .file-list-item.active {
+            background: rgba(0, 122, 255, 0.1);
+        }
+
+        .file-type-icon {
+            width: 16px;
+            height: 16px;
+            background-size: contain;
+        }
+
+        /* === Other Apps === */
+        #safariWindow, #mailWindow, #settingsWindow {
+            width: 600px;
+            height: 400px;
+            top: 100px;
+            left: 100px;
+        }
+
+        .app-content {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #666;
+        }
+
+        /* === Modal === */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1004;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            min-width: 300px;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 8px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .modal-select {
+            width: 100%;
+            padding: 8px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .modal-button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .modal-button.primary {
+            background: #007AFF;
+            color: white;
+        }
     </style>
 </head>
 <body>
 
-    <!-- ... (HTML структура залишається без змін) ... -->
+    <!-- Верхня панель -->
+    <header id="menubar">
+        <nav class="left-side">
+            <span class="apple-logo"></span>
+            <span class="app-name">Finder</span>
+            <span>Файл</span>
+            <span>Редагування</span>
+            <span>Вигляд</span>
+            <span>Перехід</span>
+            <span>Вікно</span>
+            <span>Довідка</span>
+        </nav>
+        <nav class="right-side">
+            <span class="icon">🔍</span>
+            <span class="icon">📶</span>
+            <span class="icon">🔋</span>
+            <span class="icon">🔔</span>
+            <span class="date-time"></span>
+        </nav>
+    </header>
+
+    <!-- Робочий стіл -->
+    <main id="desktop">
+        <div class="desktop-icon" data-name="Macintosh HD">
+            <div class="desktop-icon-image" style="background-image: url('Folder.png')"></div>
+        </div>
+        <div class="desktop-icon" data-name="Files">
+            <div class="desktop-icon-image" style="background-image: url('Folder.png')"></div>
+        </div>
+        <div class="desktop-icon" data-name="Downloads">
+            <div class="desktop-icon-image" style="background-image: url('Folder.png')"></div>
+        </div>
+        <div class="desktop-icon" data-name="Trash">
+            <div class="desktop-icon-image" style="background-image: url('Trash.png')"></div>
+        </div>
+    </main>
+
+    <!-- Dock -->
+    <footer id="dock">
+        <div class="dock-item" data-name="Finder"><div class="icon-shape finder"></div><div class="dot active"></div></div>
+        <div class="dock-item" data-name="Safari"><div class="icon-shape safari"></div></div>
+        <div class="dock-item" data-name="Mail"><div class="icon-shape mail"></div></div>
+        <div class="dock-item" data-name="Code Editor"><div class="icon-shape code-editor"></div></div>
+        <div class="dock-item" data-name="Music"><div class="icon-shape music"></div></div>
+        <div class="dock-item" data-name="Photos"><div class="icon-shape photos"></div></div>
+        <div class="dock-item" data-name="Calendar"><div class="icon-shape calendar"></div></div>
+        <div class="dock-item" data-name="Notes"><div class="icon-shape notes"></div></div>
+        <div class="dock-item" data-name="Settings"><div class="icon-shape settings"></div></div>
+        <div class="dock-item" data-name="App Store"><div class="icon-shape appstore"></div></div>
+        <div class="dock-item" data-name="Trash"><div class="icon-shape trash"></div></div>
+    </footer>
+
+    <!-- Finder Window -->
+    <div class="app-window" id="finderWindow">
+        <div class="window-header">
+            <div class="window-controls">
+                <div class="window-control close" data-window="finderWindow"></div>
+                <div class="window-control minimize"></div>
+                <div class="window-control maximize"></div>
+            </div>
+            <div class="window-title">Files</div>
+        </div>
+        <div class="finder-toolbar">
+            <div class="toolbar-button" id="newFolderBtn">Нова папка</div>
+            <div class="toolbar-button" id="newFileBtn">Новий файл</div>
+            <div class="toolbar-button" id="deleteFolderBtn">Видалити</div>
+        </div>
+        <div class="finder-content">
+            <div class="sidebar">
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Улюблені</div>
+                    <div class="sidebar-item active">
+                        <span class="sidebar-icon">🏠</span>
+                        <span>Головна</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <span class="sidebar-icon">📁</span>
+                        <span>Files</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <span class="sidebar-icon">⬇️</span>
+                        <span>Завантаження</span>
+                    </div>
+                </div>
+            </div>
+            <div class="files-area">
+                <div class="files-grid" id="filesGrid">
+                    <!-- Folders will be dynamically added here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Code Editor Window -->
+    <div class="app-window" id="codeEditorWindow">
+        <div class="window-header">
+            <div class="window-controls">
+                <div class="window-control close" data-window="codeEditorWindow"></div>
+                <div class="window-control minimize"></div>
+                <div class="window-control maximize"></div>
+            </div>
+            <div class="window-title">Code Editor</div>
+        </div>
+        <div class="editor-toolbar">
+            <div class="toolbar-button" id="editorNewFileBtn">Новий файл</div>
+            <div class="toolbar-button" id="saveFileBtn">Зберегти</div>
+            <div class="toolbar-button" id="runCodeBtn">Запустити</div>
+            <div class="toolbar-button" id="openProjectBtn">Відкрити проект</div>
+        </div>
+        <div class="editor-content">
+            <div class="editor-sidebar">
+                <div class="sidebar-title">Файли проекту</div>
+                <ul class="file-list" id="projectFiles">
+                    <!-- Project files will be listed here -->
+                </ul>
+            </div>
+            <div class="editor-main">
+                <div class="editor-tabs" id="editorTabs">
+                    <!-- Tabs will be dynamically added here -->
+                </div>
+                <div class="editor-panes">
+                    <div class="code-pane">
+                        <div class="pane-header">Редактор коду</div>
+                        <div class="code-area" id="codeEditor" contenteditable="true"></div>
+                    </div>
+                    <div class="preview-pane">
+                        <div class="pane-header">Попередній перегляд</div>
+                        <iframe class="preview-area" id="previewFrame" sandbox="allow-scripts"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Other App Windows -->
+    <div class="app-window" id="safariWindow">
+        <div class="window-header">
+            <div class="window-controls">
+                <div class="window-control close" data-window="safariWindow"></div>
+                <div class="window-control minimize"></div>
+                <div class="window-control maximize"></div>
+            </div>
+            <div class="window-title">Safari</div>
+        </div>
+        <div class="app-content">
+            Веб-браузер Safari
+        </div>
+    </div>
+
+    <div class="app-window" id="mailWindow">
+        <div class="window-header">
+            <div class="window-controls">
+                <div class="window-control close" data-window="mailWindow"></div>
+                <div class="window-control minimize"></div>
+                <div class="window-control maximize"></div>
+            </div>
+            <div class="window-title">Mail</div>
+        </div>
+        <div class="app-content">
+            Поштовий клієнт
+        </div>
+    </div>
+
+    <div class="app-window" id="settingsWindow">
+        <div class="window-header">
+            <div class="window-controls">
+                <div class="window-control close" data-window="settingsWindow"></div>
+                <div class="window-control minimize"></div>
+                <div class="window-control maximize"></div>
+            </div>
+            <div class="window-title">Settings</div>
+        </div>
+        <div class="app-content">
+            Налаштування системи
+        </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div class="context-menu" id="contextMenu">
+        <div class="context-menu-item" id="contextNewFolder">Нова папка</div>
+        <div class="context-menu-item" id="contextNewFile">Новий файл</div>
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item" id="contextOpen">Відкрити</div>
+        <div class="context-menu-item" id="contextDelete">Видалити</div>
+        <div class="context-menu-item" id="contextRename">Перейменувати</div>
+    </div>
+
+    <!-- Name Input Modal -->
+    <div class="modal" id="nameModal">
+        <div class="modal-content">
+            <h3 style="margin: 0 0 15px 0;" id="modalTitle">Введіть назву</h3>
+            <input type="text" class="modal-input" id="itemNameInput" placeholder="Назва" value="">
+            <select class="modal-select" id="fileTypeSelect" style="display: none;">
+                <option value="html">HTML файл</option>
+                <option value="css">CSS файл</option>
+                <option value="js">JavaScript файл</option>
+            </select>
+            <div class="modal-buttons">
+                <button class="modal-button" id="cancelNameBtn">Скасувати</button>
+                <button class="modal-button primary" id="confirmNameBtn">Створити</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -274,11 +1073,6 @@ console.log(greeter.greet());`
                     folder: currentProject
                 };
 
-                // Додаємо файл до папки
-                if (currentProject && folders[currentProject]) {
-                    folders[currentProject].files.push(fileId);
-                }
-
                 // Додаємо обробники подій для нового файлу
                 addItemEventListeners(fileElement, fileId, 'file');
 
@@ -409,7 +1203,7 @@ console.log(greeter.greet());`
             });
 
             /* -----------------------------
-               5. РЕДАКТОР КОДУ - ВИПРАВЛЕННЯ
+               5. РЕДАКТОР КОДУ
             ------------------------------ */
             const codeEditor = document.getElementById('codeEditor');
             const previewFrame = document.getElementById('previewFrame');
@@ -478,7 +1272,7 @@ console.log(greeter.greet());`
                     tabElement.classList.add('active');
                 }
 
-                // Встановлюємо вміст редактора з правильного файлу
+                // Встановлюємо вміст редактора
                 codeEditor.textContent = tab.content;
                 activeTab = tab;
 
@@ -504,18 +1298,13 @@ console.log(greeter.greet());`
                     } else {
                         codeEditor.textContent = '';
                         activeTab = null;
-                        previewFrame.srcdoc = '<html><body><h1>Відкрийте файл для перегляду</h1></body></html>';
                     }
                 }
             }
 
             function updatePreview() {
-                if (!activeTab) {
-                    previewFrame.srcdoc = '<html><body><h1>Відкрийте файл для перегляду</h1></body></html>';
-                    return;
-                }
+                if (!activeTab) return;
 
-                // Отримуємо всі відкриті файли
                 const htmlFile = openTabs.find(t => t.type === 'html');
                 const cssFile = openTabs.find(t => t.type === 'css');
                 const jsFile = openTabs.find(t => t.type === 'js');
@@ -524,7 +1313,6 @@ console.log(greeter.greet());`
                 let cssContent = cssFile ? `<style>${cssFile.content}</style>` : '';
                 let jsContent = jsFile ? `<script>${jsFile.content}<\/script>` : '';
 
-                // Якщо активний CSS або JS файл, все одно показуємо HTML з підключеними стилями/скриптами
                 const fullHtml = `
                     <!DOCTYPE html>
                     <html>
@@ -545,12 +1333,8 @@ console.log(greeter.greet());`
 
             function saveCurrentFile() {
                 if (activeTab) {
-                    // Оновлюємо вміст файлу в пам'яті
                     activeTab.content = codeEditor.textContent;
                     files[activeTab.fileId].content = codeEditor.textContent;
-                    
-                    // Оновлюємо попередній перегляд
-                    updatePreview();
                     alert('Файл збережено!');
                 }
             }
@@ -591,10 +1375,7 @@ console.log(greeter.greet());`
             codeEditor.addEventListener('input', () => {
                 if (activeTab) {
                     activeTab.content = codeEditor.textContent;
-                    // Оновлюємо попередній перегляд тільки для HTML файлів
-                    if (activeTab.type === 'html') {
-                        updatePreview();
-                    }
+                    updatePreview();
                 }
             });
 
@@ -610,6 +1391,7 @@ console.log(greeter.greet());`
             });
 
             openProjectBtn.addEventListener('click', () => {
+                // Тут можна реалізувати відкриття існуючого проекту
                 alert('Функція відкриття проекту в розробці');
             });
 
@@ -740,19 +1522,7 @@ console.log(greeter.greet());`
 
             // Створюємо стартовий проект
             setTimeout(() => {
-                const projectFolderId = 'folder_' + Date.now();
-                folders[projectFolderId] = {
-                    id: projectFolderId,
-                    name: 'Мій проект',
-                    files: [],
-                    type: 'folder'
-                };
-                
-                // Створюємо папку
                 createNewFolder('Мій проект');
-                currentProject = projectFolderId;
-                
-                // Створюємо файли
                 createNewFile('index', 'html');
                 createNewFile('style', 'css');
                 createNewFile('script', 'js');
