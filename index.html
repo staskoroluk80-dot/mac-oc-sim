@@ -340,21 +340,15 @@
             background-image: url('Folder.png');
         }
 
+        .html-file { background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%23E44D26" d="M4.136 3.012h15.729l-1.431 16.15-6.451 1.826-6.414-1.826-1.433-16.15zm5.266 7.302l-.2-2.29h7.199l.2-1.978h-9.599l.6 6.678h6.264l-.266 2.876-2.099.57v.004h-.065v-.003l-2.099-.57-.134-1.477h-2.064l.201 2.813 3.842 1.06h.046v-.001h.032l.014.001 3.868-1.061.534-6.017h-7.134z"/></svg>'); }
+        .css-file { background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%231572B6" d="M4.192 3.143h15.616l-1.431 16.125-6.383 1.8-6.385-1.8-1.417-16.125zm2.735 2.948h-.599l.401 4.426h5.294l-.133 1.328h-5.162l.4 4.426h5.745l-.2 1.937-2.87.792-2.896-.792-.184-2.078h-1.649l.267 3.244 4.924 1.388h.064l4.924-1.388.534-6.076h-7.999l-.133-1.329h8.265l.133-1.328h-8.398z"/></svg>'); }
+        .js-file { background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%23F7DF1E" d="M3 3h18v18H3V3zm8.5 14.5c0 .88-.56 1.64-1.53 1.95-.53.17-1.08.26-1.67.26-.47 0-.92-.06-1.36-.19l.34-1.73c.29.12.68.19 1.02.19.44 0 .88-.09 1.02-.26.14-.17.21-.44.21-.82V9h2.07v8.5zm5.36-1.44c-.53.79-1.24 1.18-2.13 1.18-.62 0-1.12-.17-1.5-.51-.38-.34-.56-.79-.56-1.35 0-.53.17-.97.51-1.31.34-.34.85-.62 1.53-.85.85-.26 1.36-.44 1.53-.53.17-.09.26-.26.26-.53 0-.29-.12-.47-.35-.56-.23-.09-.62-.14-1.17-.14-.5 0-.94.08-1.31.23l-.35-1.67c.47-.2 1.06-.29 1.77-.29.62 0 1.14.11 1.56.32.42.21.74.53.97.94.23.41.35.88.35 1.41 0 .62-.23 1.14-.68 1.56-.45.42-1.08.74-1.89.97-.5.15-.85.29-1.05.41-.2.12-.29.29-.29.53 0 .23.11.41.32.53.21.12.56.18 1.05.18.56 0 1.05-.11 1.47-.32l.35 1.67c-.41.23-.97.35-1.67.35-.79 0-1.44-.17-1.95-.51-.51-.34-.85-.79-1.02-1.35-.17-.56-.26-1.17-.26-1.83 0-.62.14-1.17.41-1.65.27-.48.68-.85 1.23-1.11.55-.26 1.23-.44 2.04-.56.8-.12 1.38-.26 1.73-.41.35-.15.53-.41.53-.79 0-.32-.14-.56-.41-.71-.27-.15-.68-.23-1.23-.23-.5 0-.94.08-1.31.23l-.35-1.67c.5-.2 1.14-.29 1.92-.29.68 0 1.26.11 1.74.32.48.21.85.53 1.11.94.26.41.39.88.39 1.41 0 .62-.23 1.14-.68 1.56-.45.42-1.08.74-1.89.97z"/></svg>'); }
+
         .file-name {
             font-size: 12px;
             text-align: center;
             word-break: break-word;
             max-width: 80px;
-        }
-
-        .file-name-input {
-            border: 1px solid #007AFF;
-            border-radius: 4px;
-            padding: 2px 6px;
-            font-size: 12px;
-            width: 70px;
-            text-align: center;
-            background: white;
         }
 
         .path-bar {
@@ -381,40 +375,10 @@
             color: #999;
         }
 
-        /* === Context Menu === */
-        .context-menu {
-            position: fixed;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 8px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            padding: 5px 0;
-            z-index: 1003;
-            display: none;
-            min-width: 180px;
-        }
-
-        .context-menu-item {
-            padding: 8px 15px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: background 0.2s;
-        }
-
-        .context-menu-item:hover {
-            background: rgba(0, 122, 255, 0.1);
-        }
-
-        .context-menu-divider {
-            height: 1px;
-            background: rgba(0, 0, 0, 0.1);
-            margin: 5px 0;
-        }
-
         /* === Code Editor Window === */
         #codeEditorWindow {
-            width: 900px;
-            height: 600px;
+            width: 1000px;
+            height: 700px;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
@@ -426,6 +390,7 @@
             background: rgba(255, 255, 255, 0.7);
             border-bottom: 1px solid rgba(0, 0, 0, 0.1);
             gap: 10px;
+            align-items: center;
         }
 
         .editor-content {
@@ -435,10 +400,11 @@
         }
 
         .editor-sidebar {
-            width: 200px;
+            width: 250px;
             background: rgba(245, 245, 245, 0.8);
             border-right: 1px solid rgba(0, 0, 0, 0.1);
             padding: 15px;
+            overflow-y: auto;
         }
 
         .editor-main {
@@ -451,6 +417,7 @@
             display: flex;
             background: rgba(240, 240, 240, 0.8);
             border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            min-height: 35px;
         }
 
         .editor-tab {
@@ -458,10 +425,56 @@
             cursor: pointer;
             border-right: 1px solid rgba(0, 0, 0, 0.1);
             font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(240, 240, 240, 0.8);
         }
 
         .editor-tab.active {
             background: white;
+        }
+
+        .tab-close {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .tab-close:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .editor-panes {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .code-pane {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .preview-pane {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pane-header {
+            padding: 8px 15px;
+            background: rgba(245, 245, 245, 0.8);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            font-size: 12px;
+            font-weight: 600;
         }
 
         .code-area {
@@ -475,6 +488,45 @@
             overflow: auto;
             outline: none;
             white-space: pre;
+            tab-size: 4;
+        }
+
+        .preview-area {
+            flex: 1;
+            padding: 15px;
+            overflow: auto;
+            background: white;
+        }
+
+        .file-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .file-list-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        .file-list-item:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .file-list-item.active {
+            background: rgba(0, 122, 255, 0.1);
+        }
+
+        .file-type-icon {
+            width: 16px;
+            height: 16px;
+            background-size: contain;
         }
 
         /* === Other Apps === */
@@ -522,6 +574,15 @@
             margin: 10px 0;
             border: 1px solid #ddd;
             border-radius: 4px;
+        }
+
+        .modal-select {
+            width: 100%;
+            padding: 8px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
         }
 
         .modal-buttons {
@@ -610,9 +671,8 @@
         </div>
         <div class="finder-toolbar">
             <div class="toolbar-button" id="newFolderBtn">Нова папка</div>
+            <div class="toolbar-button" id="newFileBtn">Новий файл</div>
             <div class="toolbar-button" id="deleteFolderBtn">Видалити</div>
-            <div class="toolbar-button">Перегляд</div>
-            <div class="toolbar-button">Сортувати</div>
         </div>
         <div class="finder-content">
             <div class="sidebar">
@@ -651,28 +711,32 @@
             <div class="window-title">Code Editor</div>
         </div>
         <div class="editor-toolbar">
-            <div class="toolbar-button" id="newFileBtn">Новий файл</div>
+            <div class="toolbar-button" id="editorNewFileBtn">Новий файл</div>
             <div class="toolbar-button" id="saveFileBtn">Зберегти</div>
             <div class="toolbar-button" id="runCodeBtn">Запустити</div>
+            <div class="toolbar-button" id="openProjectBtn">Відкрити проект</div>
         </div>
         <div class="editor-content">
             <div class="editor-sidebar">
                 <div class="sidebar-title">Файли проекту</div>
-                <div id="projectFiles">
+                <ul class="file-list" id="projectFiles">
                     <!-- Project files will be listed here -->
-                </div>
+                </ul>
             </div>
             <div class="editor-main">
-                <div class="editor-tabs">
-                    <div class="editor-tab active">script.js</div>
+                <div class="editor-tabs" id="editorTabs">
+                    <!-- Tabs will be dynamically added here -->
                 </div>
-                <div class="code-area" id="codeEditor" contenteditable="true">// Welcome to Code Editor!
-function helloWorld() {
-    console.log("Hello, World!");
-    return "Hello from macOS!";
-}
-
-// Start coding here...</div>
+                <div class="editor-panes">
+                    <div class="code-pane">
+                        <div class="pane-header">Редактор коду</div>
+                        <div class="code-area" id="codeEditor" contenteditable="true"></div>
+                    </div>
+                    <div class="preview-pane">
+                        <div class="pane-header">Попередній перегляд</div>
+                        <iframe class="preview-area" id="previewFrame" sandbox="allow-scripts"></iframe>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -723,6 +787,7 @@ function helloWorld() {
     <!-- Context Menu -->
     <div class="context-menu" id="contextMenu">
         <div class="context-menu-item" id="contextNewFolder">Нова папка</div>
+        <div class="context-menu-item" id="contextNewFile">Новий файл</div>
         <div class="context-menu-divider"></div>
         <div class="context-menu-item" id="contextOpen">Відкрити</div>
         <div class="context-menu-item" id="contextDelete">Видалити</div>
@@ -732,8 +797,13 @@ function helloWorld() {
     <!-- Name Input Modal -->
     <div class="modal" id="nameModal">
         <div class="modal-content">
-            <h3 style="margin: 0 0 15px 0;">Введіть назву папки</h3>
-            <input type="text" class="modal-input" id="folderNameInput" placeholder="Назва папки" value="Нова папка">
+            <h3 style="margin: 0 0 15px 0;" id="modalTitle">Введіть назву</h3>
+            <input type="text" class="modal-input" id="itemNameInput" placeholder="Назва" value="">
+            <select class="modal-select" id="fileTypeSelect" style="display: none;">
+                <option value="html">HTML файл</option>
+                <option value="css">CSS файл</option>
+                <option value="js">JavaScript файл</option>
+            </select>
             <div class="modal-buttons">
                 <button class="modal-button" id="cancelNameBtn">Скасувати</button>
                 <button class="modal-button primary" id="confirmNameBtn">Створити</button>
@@ -744,10 +814,77 @@ function helloWorld() {
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             let folderCounter = 1;
-            let selectedFolder = null;
+            let fileCounter = 1;
+            let selectedItem = null;
             let isDragging = false;
             let dragOffset = { x: 0, y: 0 };
             let folders = {};
+            let files = {};
+            let currentProject = null;
+            let openTabs = [];
+            let activeTab = null;
+
+            // Шаблони файлів
+            const fileTemplates = {
+                html: `<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Новий документ</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Привіт, світ!</h1>
+    <p>Це новий HTML документ</p>
+    <script src="script.js"><\/script>
+</body>
+</html>`,
+                css: `/* Стилі для нового проекту */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+h1 {
+    text-align: center;
+    font-size: 3em;
+    margin-bottom: 20px;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}`,
+                js: `// JavaScript код
+console.log('Привіт від macOS!');
+
+function welcomeMessage() {
+    const now = new Date();
+    alert('Ласкаво просимо! Сьогодні: ' + now.toLocaleDateString('uk-UA'));
+}
+
+// Викликаємо функцію при завантаженні
+document.addEventListener('DOMContentLoaded', welcomeMessage);
+
+// Приклад класу
+class Greeter {
+    constructor(name) {
+        this.name = name;
+    }
+    
+    greet() {
+        return 'Привіт, ' + this.name + '!';
+    }
+}
+
+const greeter = new Greeter('Користувач');
+console.log(greeter.greet());`
+            };
 
             /* -----------------------------
                1. ОНОВЛЕННЯ ЧАСУ В MENUBAR
@@ -851,21 +988,37 @@ function helloWorld() {
             }
 
             /* -----------------------------
-               4. СТВОРЕННЯ ТА ВИДАЛЕННЯ ПАПОК
+               4. СТВОРЕННЯ ПАПОК ТА ФАЙЛІВ
             ------------------------------ */
             const filesGrid = document.getElementById('filesGrid');
             const newFolderBtn = document.getElementById('newFolderBtn');
+            const newFileBtn = document.getElementById('newFileBtn');
             const deleteFolderBtn = document.getElementById('deleteFolderBtn');
             const nameModal = document.getElementById('nameModal');
-            const folderNameInput = document.getElementById('folderNameInput');
+            const itemNameInput = document.getElementById('itemNameInput');
+            const fileTypeSelect = document.getElementById('fileTypeSelect');
+            const modalTitle = document.getElementById('modalTitle');
             const cancelNameBtn = document.getElementById('cancelNameBtn');
             const confirmNameBtn = document.getElementById('confirmNameBtn');
 
-            function showNameModal() {
-                folderNameInput.value = `Нова папка ${folderCounter}`;
+            let currentModalType = 'folder'; // 'folder' або 'file'
+
+            function showNameModal(type = 'folder') {
+                currentModalType = type;
+                
+                if (type === 'folder') {
+                    modalTitle.textContent = 'Введіть назву папки';
+                    itemNameInput.value = `Нова папка ${folderCounter}`;
+                    fileTypeSelect.style.display = 'none';
+                } else {
+                    modalTitle.textContent = 'Введіть назву файлу';
+                    itemNameInput.value = `новий файл ${fileCounter}`;
+                    fileTypeSelect.style.display = 'block';
+                }
+                
                 nameModal.style.display = 'flex';
-                folderNameInput.focus();
-                folderNameInput.select();
+                itemNameInput.focus();
+                itemNameInput.select();
             }
 
             function createNewFolder(name) {
@@ -885,51 +1038,114 @@ function helloWorld() {
                     id: folderId,
                     name: name,
                     element: folderElement,
-                    files: []
+                    files: [],
+                    type: 'folder'
                 };
 
                 // Додаємо обробники подій для нової папки
-                folderElement.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    selectFolder(folderElement);
-                });
-
-                folderElement.addEventListener('dblclick', () => {
-                    openFolder(folderId);
-                });
-
-                folderElement.addEventListener('contextmenu', (e) => {
-                    e.preventDefault();
-                    selectFolder(folderElement);
-                    showContextMenu(e.pageX, e.pageY);
-                });
+                addItemEventListeners(folderElement, folderId, 'folder');
 
                 filesGrid.appendChild(folderElement);
                 folderCounter++;
             }
 
+            function createNewFile(name, type = 'html') {
+                const fileId = 'file_' + Date.now();
+                const extension = type === 'html' ? '.html' : type === 'css' ? '.css' : '.js';
+                const fullName = name.endsWith(extension) ? name : name + extension;
+                
+                const fileElement = document.createElement('div');
+                fileElement.className = 'file-item';
+                fileElement.setAttribute('data-type', 'file');
+                fileElement.setAttribute('data-id', fileId);
+                fileElement.innerHTML = `
+                    <div class="file-icon ${type}-file"></div>
+                    <div class="file-name">${fullName}</div>
+                `;
+
+                // Зберігаємо інформацію про файл
+                files[fileId] = {
+                    id: fileId,
+                    name: fullName,
+                    element: fileElement,
+                    type: type,
+                    content: fileTemplates[type],
+                    folder: currentProject
+                };
+
+                // Додаємо обробники подій для нового файлу
+                addItemEventListeners(fileElement, fileId, 'file');
+
+                filesGrid.appendChild(fileElement);
+                fileCounter++;
+                
+                // Додаємо файл до списку в редакторі
+                addFileToProjectList(fileId);
+            }
+
+            function addItemEventListeners(element, itemId, type) {
+                element.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    selectItem(element, itemId, type);
+                });
+
+                element.addEventListener('dblclick', () => {
+                    if (type === 'folder') {
+                        openFolder(itemId);
+                    } else {
+                        openFileInEditor(itemId);
+                    }
+                });
+
+                element.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    selectItem(element, itemId, type);
+                    showContextMenu(e.pageX, e.pageY, type);
+                });
+            }
+
+            function selectItem(element, itemId, type) {
+                // Знімаємо виділення з усіх елементів
+                document.querySelectorAll('.file-item').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                // Виділяємо поточний елемент
+                element.classList.add('selected');
+                selectedItem = { element, id: itemId, type };
+            }
+
             function openFolder(folderId) {
                 const folder = folders[folderId];
                 if (folder) {
+                    currentProject = folderId;
+                    
                     // Очищаємо поточний вміст
                     filesGrid.innerHTML = '';
                     
                     // Додаємо файли з папки
-                    folder.files.forEach(file => {
-                        const fileElement = document.createElement('div');
-                        fileElement.className = 'file-item';
-                        fileElement.setAttribute('data-type', 'file');
-                        fileElement.innerHTML = `
-                            <div class="file-icon">📄</div>
-                            <div class="file-name">${file.name}</div>
-                        `;
-                        filesGrid.appendChild(fileElement);
+                    folder.files.forEach(fileId => {
+                        const file = files[fileId];
+                        if (file) {
+                            filesGrid.appendChild(file.element);
+                        }
                     });
 
                     // Оновлюємо шлях
                     updatePathBar(folder.name);
                     
-                    alert(`Відкрито папку: ${folder.name}`);
+                    // Оновлюємо список файлів у редакторі
+                    updateProjectFilesList();
+                }
+            }
+
+            function openFileInEditor(fileId) {
+                const file = files[fileId];
+                if (file) {
+                    // Відкриваємо редактор коду
+                    openApp('codeEditorWindow', 'Code Editor');
+                    
+                    // Створюємо або активуємо вкладку для файлу
+                    openOrActivateTab(fileId);
                 }
             }
 
@@ -944,32 +1160,35 @@ function helloWorld() {
                 `;
             }
 
-            function selectFolder(folderElement) {
-                // Знімаємо виділення з усіх папок
-                document.querySelectorAll('.file-item').forEach(item => {
-                    item.classList.remove('selected');
-                });
-                // Виділяємо поточну папку
-                folderElement.classList.add('selected');
-                selectedFolder = folderElement;
-            }
-
-            function deleteSelectedFolder() {
-                if (selectedFolder) {
-                    const folderId = selectedFolder.getAttribute('data-id');
-                    delete folders[folderId];
-                    selectedFolder.remove();
-                    selectedFolder = null;
+            function deleteSelectedItem() {
+                if (selectedItem) {
+                    if (selectedItem.type === 'folder') {
+                        delete folders[selectedItem.id];
+                    } else {
+                        delete files[selectedItem.id];
+                        // Видаляємо вкладку якщо вона відкрита
+                        closeTab(selectedItem.id);
+                    }
+                    selectedItem.element.remove();
+                    selectedItem = null;
                 }
             }
 
-            newFolderBtn.addEventListener('click', showNameModal);
-            deleteFolderBtn.addEventListener('click', deleteSelectedFolder);
+            newFolderBtn.addEventListener('click', () => showNameModal('folder'));
+            newFileBtn.addEventListener('click', () => showNameModal('file'));
+            deleteFolderBtn.addEventListener('click', deleteSelectedItem);
 
             confirmNameBtn.addEventListener('click', () => {
-                const name = folderNameInput.value.trim() || `Нова папка ${folderCounter}`;
-                createNewFolder(name);
-                nameModal.style.display = 'none';
+                const name = itemNameInput.value.trim();
+                if (name) {
+                    if (currentModalType === 'folder') {
+                        createNewFolder(name);
+                    } else {
+                        const fileType = fileTypeSelect.value;
+                        createNewFile(name, fileType);
+                    }
+                    nameModal.style.display = 'none';
+                }
             });
 
             cancelNameBtn.addEventListener('click', () => {
@@ -984,23 +1203,217 @@ function helloWorld() {
             });
 
             /* -----------------------------
-               5. КОНТЕКСТНЕ МЕНЮ
+               5. РЕДАКТОР КОДУ
+            ------------------------------ */
+            const codeEditor = document.getElementById('codeEditor');
+            const previewFrame = document.getElementById('previewFrame');
+            const editorTabs = document.getElementById('editorTabs');
+            const projectFiles = document.getElementById('projectFiles');
+            const runCodeBtn = document.getElementById('runCodeBtn');
+            const saveFileBtn = document.getElementById('saveFileBtn');
+            const editorNewFileBtn = document.getElementById('editorNewFileBtn');
+            const openProjectBtn = document.getElementById('openProjectBtn');
+
+            function openOrActivateTab(fileId) {
+                const file = files[fileId];
+                if (!file) return;
+
+                // Перевіряємо чи вкладка вже відкрита
+                let tab = openTabs.find(t => t.fileId === fileId);
+                
+                if (!tab) {
+                    // Створюємо нову вкладку
+                    tab = {
+                        fileId: fileId,
+                        name: file.name,
+                        type: file.type,
+                        content: file.content
+                    };
+                    openTabs.push(tab);
+                    
+                    // Додаємо вкладку в інтерфейс
+                    const tabElement = document.createElement('div');
+                    tabElement.className = 'editor-tab';
+                    tabElement.setAttribute('data-file-id', fileId);
+                    tabElement.innerHTML = `
+                        <span>${file.name}</span>
+                        <div class="tab-close">×</div>
+                    `;
+                    
+                    tabElement.addEventListener('click', (e) => {
+                        if (!e.target.classList.contains('tab-close')) {
+                            activateTab(fileId);
+                        }
+                    });
+                    
+                    tabElement.querySelector('.tab-close').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        closeTab(fileId);
+                    });
+                    
+                    editorTabs.appendChild(tabElement);
+                }
+                
+                activateTab(fileId);
+            }
+
+            function activateTab(fileId) {
+                const tab = openTabs.find(t => t.fileId === fileId);
+                if (!tab) return;
+
+                // Деактивуємо всі вкладки
+                document.querySelectorAll('.editor-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+
+                // Активуємо поточну вкладку
+                const tabElement = document.querySelector(`.editor-tab[data-file-id="${fileId}"]`);
+                if (tabElement) {
+                    tabElement.classList.add('active');
+                }
+
+                // Встановлюємо вміст редактора
+                codeEditor.textContent = tab.content;
+                activeTab = tab;
+
+                // Оновлюємо попередній перегляд
+                updatePreview();
+            }
+
+            function closeTab(fileId) {
+                const tabIndex = openTabs.findIndex(t => t.fileId === fileId);
+                if (tabIndex !== -1) {
+                    openTabs.splice(tabIndex, 1);
+                }
+
+                const tabElement = document.querySelector(`.editor-tab[data-file-id="${fileId}"]`);
+                if (tabElement) {
+                    tabElement.remove();
+                }
+
+                // Якщо це була активна вкладка, активуємо наступну
+                if (activeTab && activeTab.fileId === fileId) {
+                    if (openTabs.length > 0) {
+                        activateTab(openTabs[0].fileId);
+                    } else {
+                        codeEditor.textContent = '';
+                        activeTab = null;
+                    }
+                }
+            }
+
+            function updatePreview() {
+                if (!activeTab) return;
+
+                const htmlFile = openTabs.find(t => t.type === 'html');
+                const cssFile = openTabs.find(t => t.type === 'css');
+                const jsFile = openTabs.find(t => t.type === 'js');
+
+                let htmlContent = htmlFile ? htmlFile.content : '<h1>Відкрийте HTML файл для перегляду</h1>';
+                let cssContent = cssFile ? `<style>${cssFile.content}</style>` : '';
+                let jsContent = jsFile ? `<script>${jsFile.content}<\/script>` : '';
+
+                const fullHtml = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        ${cssContent}
+                    </head>
+                    <body>
+                        ${htmlContent}
+                        ${jsContent}
+                    </body>
+                    </html>
+                `;
+
+                previewFrame.srcdoc = fullHtml;
+            }
+
+            function saveCurrentFile() {
+                if (activeTab) {
+                    activeTab.content = codeEditor.textContent;
+                    files[activeTab.fileId].content = codeEditor.textContent;
+                    alert('Файл збережено!');
+                }
+            }
+
+            function addFileToProjectList(fileId) {
+                const file = files[fileId];
+                if (!file) return;
+
+                const listItem = document.createElement('li');
+                listItem.className = 'file-list-item';
+                listItem.setAttribute('data-file-id', fileId);
+                listItem.innerHTML = `
+                    <div class="file-type-icon ${file.type}-file"></div>
+                    <span>${file.name}</span>
+                `;
+
+                listItem.addEventListener('click', () => {
+                    openOrActivateTab(fileId);
+                });
+
+                projectFiles.appendChild(listItem);
+            }
+
+            function updateProjectFilesList() {
+                projectFiles.innerHTML = '';
+                
+                if (currentProject) {
+                    const folder = folders[currentProject];
+                    if (folder) {
+                        folder.files.forEach(fileId => {
+                            addFileToProjectList(fileId);
+                        });
+                    }
+                }
+            }
+
+            // Обробники подій редактора
+            codeEditor.addEventListener('input', () => {
+                if (activeTab) {
+                    activeTab.content = codeEditor.textContent;
+                    updatePreview();
+                }
+            });
+
+            runCodeBtn.addEventListener('click', () => {
+                updatePreview();
+                alert('Код виконано! Перевірте консоль браузера.');
+            });
+
+            saveFileBtn.addEventListener('click', saveCurrentFile);
+
+            editorNewFileBtn.addEventListener('click', () => {
+                showNameModal('file');
+            });
+
+            openProjectBtn.addEventListener('click', () => {
+                // Тут можна реалізувати відкриття існуючого проекту
+                alert('Функція відкриття проекту в розробці');
+            });
+
+            /* -----------------------------
+               6. КОНТЕКСТНЕ МЕНЮ
             ------------------------------ */
             const contextMenu = document.getElementById('contextMenu');
             const contextNewFolder = document.getElementById('contextNewFolder');
+            const contextNewFile = document.getElementById('contextNewFile');
             const contextOpen = document.getElementById('contextOpen');
             const contextDelete = document.getElementById('contextDelete');
             const contextRename = document.getElementById('contextRename');
 
-            function showContextMenu(x, y) {
+            function showContextMenu(x, y, type) {
                 contextMenu.style.left = x + 'px';
                 contextMenu.style.top = y + 'px';
                 contextMenu.style.display = 'block';
                 
-                // Показуємо/ховаємо пункти меню в залежності від контексту
-                contextOpen.style.display = selectedFolder ? 'block' : 'none';
-                contextDelete.style.display = selectedFolder ? 'block' : 'none';
-                contextRename.style.display = selectedFolder ? 'block' : 'none';
+                // Показуємо/ховаємо пункти меню в залежності від типу елементу
+                contextOpen.style.display = selectedItem ? 'block' : 'none';
+                contextDelete.style.display = selectedItem ? 'block' : 'none';
+                contextRename.style.display = selectedItem ? 'block' : 'none';
             }
 
             function hideContextMenu() {
@@ -1008,31 +1421,50 @@ function helloWorld() {
             }
 
             contextNewFolder.addEventListener('click', () => {
-                showNameModal();
+                showNameModal('folder');
+                hideContextMenu();
+            });
+
+            contextNewFile.addEventListener('click', () => {
+                showNameModal('file');
                 hideContextMenu();
             });
 
             contextOpen.addEventListener('click', () => {
-                if (selectedFolder) {
-                    const folderId = selectedFolder.getAttribute('data-id');
-                    openFolder(folderId);
+                if (selectedItem) {
+                    if (selectedItem.type === 'folder') {
+                        openFolder(selectedItem.id);
+                    } else {
+                        openFileInEditor(selectedItem.id);
+                    }
                 }
                 hideContextMenu();
             });
 
             contextDelete.addEventListener('click', () => {
-                deleteSelectedFolder();
+                deleteSelectedItem();
                 hideContextMenu();
             });
 
             contextRename.addEventListener('click', () => {
-                if (selectedFolder) {
-                    const folderId = selectedFolder.getAttribute('data-id');
-                    const folder = folders[folderId];
-                    const newName = prompt('Введіть нову назву:', folder.name);
+                if (selectedItem) {
+                    const newName = prompt('Введіть нову назву:', 
+                        selectedItem.type === 'folder' ? 
+                        folders[selectedItem.id].name : 
+                        files[selectedItem.id].name.replace(/\.[^/.]+$/, "")
+                    );
                     if (newName && newName.trim()) {
-                        folder.name = newName.trim();
-                        selectedFolder.querySelector('.file-name').textContent = newName.trim();
+                        if (selectedItem.type === 'folder') {
+                            folders[selectedItem.id].name = newName.trim();
+                        } else {
+                            const file = files[selectedItem.id];
+                            const extension = file.type === 'html' ? '.html' : file.type === 'css' ? '.css' : '.js';
+                            file.name = newName.trim() + extension;
+                        }
+                        selectedItem.element.querySelector('.file-name').textContent = 
+                            selectedItem.type === 'folder' ? newName.trim() : newName.trim() + 
+                            (selectedItem.type === 'file' ? (files[selectedItem.id].type === 'html' ? '.html' : 
+                            files[selectedItem.id].type === 'css' ? '.css' : '.js') : '');
                     }
                 }
                 hideContextMenu();
@@ -1045,13 +1477,13 @@ function helloWorld() {
             filesGrid.addEventListener('contextmenu', (e) => {
                 if (!e.target.closest('.file-item')) {
                     e.preventDefault();
-                    selectedFolder = null;
-                    showContextMenu(e.pageX, e.pageY);
+                    selectedItem = null;
+                    showContextMenu(e.pageX, e.pageY, 'empty');
                 }
             });
 
             /* -----------------------------
-               6. ПЕРЕМІЩЕННЯ ВІКОН
+               7. ПЕРЕМІЩЕННЯ ВІКОН
             ------------------------------ */
             document.querySelectorAll('.window-header').forEach(header => {
                 header.addEventListener('mousedown', (e) => {
@@ -1080,33 +1512,6 @@ function helloWorld() {
             });
 
             /* -----------------------------
-               7. РЕДАКТОР КОДУ
-            ------------------------------ */
-            const codeEditor = document.getElementById('codeEditor');
-            const runCodeBtn = document.getElementById('runCodeBtn');
-            const saveFileBtn = document.getElementById('saveFileBtn');
-            const newFileBtn = document.getElementById('newFileBtn');
-
-            runCodeBtn.addEventListener('click', () => {
-                const code = codeEditor.textContent;
-                try {
-                    // Створюємо функцію з коду та виконуємо її
-                    const result = new Function(code)();
-                    alert('Код виконано успішно! Результат: ' + result);
-                } catch (error) {
-                    alert('Помилка виконання коду: ' + error.message);
-                }
-            });
-
-            saveFileBtn.addEventListener('click', () => {
-                alert('Файл збережено!');
-            });
-
-            newFileBtn.addEventListener('click', () => {
-                codeEditor.textContent = '// Новий файл\n// Почніть писати код тут...';
-            });
-
-            /* -----------------------------
                8. ПЛАВНА ПОЯВА ІНТЕРФЕЙСУ
             ------------------------------ */
             document.body.style.opacity = '0';
@@ -1115,11 +1520,12 @@ function helloWorld() {
                 document.body.style.opacity = '1';
             }, 200);
 
-            // Створюємо кілька початкових папок
+            // Створюємо стартовий проект
             setTimeout(() => {
-                createNewFolder('Проекти');
-                createNewFolder('Документи');
-                createNewFolder('Зображення');
+                createNewFolder('Мій проект');
+                createNewFile('index', 'html');
+                createNewFile('style', 'css');
+                createNewFile('script', 'js');
             }, 500);
         });
     </script>
