@@ -5,854 +5,495 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>macOS Air 2024 Simulation</title>
     <style>
+        /* === ОСНОВНІ СТИЛІ === */
         body {
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: radial-gradient(circle at 40% 30%, #4356a6, #24264e 80%);
-            min-height: 100vh;
             overflow: hidden;
-            color: rgba(255, 255, 255, 0.9);
-            user-select: none;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 13px;
+            color: #333;
+            background: linear-gradient(to bottom right, #5c8d9e, #3a6b82); /* Стилізований фон macOS */
         }
 
-        /* === Меню === */
+        /* === ВЕРХНЯ ПАНЕЛЬ (MENU BAR) === */
         #menubar {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 32px;
+            height: 22px;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 18px;
-            font-size: 13px;
-            color: rgba(255, 255, 255, 0.92);
-            background-color: rgba(255, 255, 255, 0.06);
-            backdrop-filter: blur(45px) saturate(180%);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+            padding: 0 10px;
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
             z-index: 1000;
         }
 
-        #menubar nav span {
-            margin-right: 16px;
-            cursor: default;
-            padding: 3px 8px;
-            border-radius: 6px;
-            transition: background-color 0.15s ease;
+        .left-side span, .right-side span {
+            padding: 0 8px;
+            cursor: pointer;
+            transition: background 0.1s;
+            height: 22px;
+            display: inline-flex;
+            align-items: center;
+            line-height: 1;
         }
-        #menubar nav span:hover { background-color: rgba(255, 255, 255, 0.15); }
 
-        /* === Робочий стіл === */
+        .left-side span:hover:not(.apple-logo):not(.app-name) {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+        }
+
+        .apple-logo {
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        .app-name {
+            font-weight: bold;
+        }
+
+        .right-side {
+            display: flex;
+            align-items: center;
+        }
+
+        .date-time {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* === РОБОЧИЙ СТІЛ (DESKTOP) === */
         #desktop {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, 90px);
-            grid-auto-rows: 90px;
-            gap: 15px;
-            padding: 60px 20px;
-            justify-content: start;
+            position: absolute;
+            top: 22px;
+            bottom: 60px; /* Залишаємо місце для Dock */
+            left: 0;
+            right: 0;
+            padding: 15px;
         }
 
         .desktop-icon {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.6);
-            position: relative;
-            cursor: default;
-            transition: transform 0.2s;
-            width: 80px;
-            height: 80px;
-        }
-        .desktop-icon:hover {
-            transform: scale(1.05);
-        }
-
-        .desktop-icon::after {
-            content: attr(data-name);
-            position: absolute;
-            bottom: -25px;
-            font-size: 12px;
-            color: #fff;
-            opacity: 0.9;
+            width: 70px;
             text-align: center;
-            width: 100%;
+            margin-bottom: 20px;
+            cursor: pointer;
+            user-select: none;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
         }
 
         .desktop-icon-image {
-            width: 48px;
-            height: 48px;
+            width: 64px;
+            height: 64px;
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
-            margin-bottom: 5px;
+            margin: 0 auto 5px;
+        }
+        
+        /* Приклади іконок - використовуйте власні зображення або стилі */
+        .desktop-icon[data-name="Trash"] .desktop-icon-image {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="%23FFFFFF" d="M192 128V32h128v96H192zm-64 0h320L448 448H64L128 128zM32 96h448L480 480H32L32 96z"/></svg>');
+        }
+        
+        .desktop-icon[data-name="Macintosh HD"] .desktop-icon-image,
+        .desktop-icon[data-name="Files"] .desktop-icon-image,
+        .desktop-icon[data-name="Downloads"] .desktop-icon-image {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="%23FFC107" d="M496 128h-128l-64-64H32v320h448V128z"/><path fill="%23FFD740" d="M496 128H288l-64-64H32v64h464V128z"/></svg>');
         }
 
-        /* === Dock === */
+        /* === DOCK === */
         #dock {
             position: fixed;
-            bottom: 18px;
+            bottom: 5px;
             left: 50%;
             transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border-radius: 18px;
+            padding: 5px 8px;
             display: flex;
             align-items: flex-end;
-            padding: 12px 18px;
-            border-radius: 25px;
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(45px) saturate(180%);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.25);
-            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
             z-index: 999;
         }
 
         .dock-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin: 0 6px;
-            cursor: pointer;
             position: relative;
-            transition: transform 0.3s cubic-bezier(.22,.61,.36,1);
+            width: 48px;
+            height: 48px;
+            margin: 0 4px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dock-item:hover {
+            transform: scale(1.15) translateY(-5px);
+        }
+
+        .dock-item .dot {
+            position: absolute;
+            bottom: -5px;
+            width: 4px;
+            height: 4px;
+            background-color: white;
+            border-radius: 50%;
+            display: none;
+        }
+
+        .dock-item .dot.active {
+            display: block;
         }
 
         .icon-shape {
-            width: 58px;
-            height: 58px;
-            border-radius: 14px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.35);
-            overflow: hidden;
-            transition: all 0.25s ease;
-            background-size: cover;
-            background-position: center;
-        }
-        .dock-item:hover { transform: translateY(-10px) scale(1.12); }
-
-        /* === Dock icons with images === */
-        .finder { background: linear-gradient(135deg, #5A9BFF, #2D62D3); }
-        .safari { background: radial-gradient(circle at center, #A3D4FF 10%, #357CFF 75%); border-radius: 50%; }
-        .mail { background-image: url('Mail.png'); }
-        .messages { background: linear-gradient(145deg, #4AC0FF, #1B89E9); }
-        .music { background: linear-gradient(45deg, #EE68AA, #D93780); }
-        .photos { background: conic-gradient(#ffdc5e, #fa7a35, #ef366e, #9b47ef, #59c7f9, #3adb5a, #ffdc5e); border-radius: 50%; }
-        .calendar { background: linear-gradient(145deg, #fff, #ddd); color: #333; }
-        .notes { background: linear-gradient(to bottom, #fff59d, #fbc02d); color: #333; }
-        .settings { background-image: url('Settings.png'); border-radius: 50%; }
-        .appstore { background: linear-gradient(135deg, #3a9bfd, #0066ff); border-radius: 50%; }
-        .trash { background-image: url('Trash.png'); border-radius: 10px; }
-        .code-editor { background: linear-gradient(135deg, #6e45e2, #88d3ce); }
-
-        /* === Tooltip === */
-        .dock-item:hover::after {
-            content: attr(data-name);
-            position: absolute;
-            bottom: 80px;
-            background-color: rgba(255, 255, 255, 0.95);
-            color: #000;
-            padding: 4px 10px;
+            width: 48px;
+            height: 48px;
             border-radius: 10px;
-            font-size: 13px;
-            font-weight: 500;
-            white-space: nowrap;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-            pointer-events: none;
-            animation: fadeInUp 0.25s ease forwards;
+            background-color: #f0f0f0;
+            box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1), 0 2px 5px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #333;
+            transition: all 0.2s;
         }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(0); }
-            to { opacity: 1; transform: translateY(-6px); }
-        }
+        
+        /* Специфічні стилі для іконок Dock */
+        .finder { background-color: #fff; box-shadow: 0 0 0 1px #888; }
+        .finder::after { content: '◎'; color: #000; font-size: 30px; }
+        .safari { background: linear-gradient(135deg, #387ad6, #63a4ff); color: white; }
+        .safari::after { content: '🧭'; }
+        .mail { background: linear-gradient(135deg, #d32f2f, #ef5350); color: white; }
+        .mail::after { content: '✉️'; }
+        .code-editor { background: linear-gradient(135deg, #2c3e50, #34495e); color: #27ae60; }
+        .code-editor::after { content: '<>'; font-weight: bold; }
+        .calendar { background: #fff; border: 1px solid #ccc; }
+        .calendar::after { content: '📅'; }
+        .music { background: linear-gradient(135deg, #ff007f, #ff80df); color: white; }
+        .music::after { content: '🎵'; }
+        .photos { background: linear-gradient(135deg, #f39c12, #f1c40f); color: white; }
+        .photos::after { content: '🏞️'; }
+        .notes { background: linear-gradient(135deg, #27ae60, #2ecc71); color: white; }
+        .notes::after { content: '📝'; }
+        .settings { background: #7f8c8d; }
+        .settings::after { content: '⚙️'; }
+        .appstore { background: linear-gradient(135deg, #1abc9c, #16a085); color: white; }
+        .appstore::after { content: '🛒'; }
+        .trash { background: #bdc3c7; }
+        .trash::after { content: '🗑️'; }
 
-        /* === Active indicator === */
-        .dot {
-            width: 5px;
-            height: 5px;
-            background-color: #fff;
-            border-radius: 50%;
-            margin-top: 7px;
-            opacity: 0;
-        }
-        .dot.active { opacity: 1; }
 
-        /* === Application Windows === */
+        /* === ВІКНА ДОДАТКІВ (APP WINDOWS) === */
         .app-window {
-            position: fixed;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 12px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(20px);
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            width: 800px;
+            height: 600px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
             display: none;
             flex-direction: column;
-            z-index: 1002;
-            overflow: hidden;
-            color: #333;
+            resize: both;
+            min-width: 300px;
+            min-height: 200px;
+            z-index: 10;
+        }
+
+        .app-window.active {
+            z-index: 20;
         }
 
         .window-header {
+            height: 28px;
+            background: #fcfcfc;
+            border-bottom: 1px solid #ddd;
             display: flex;
             align-items: center;
-            padding: 10px 15px;
-            background: rgba(255, 255, 255, 0.8);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-            cursor: move;
+            padding: 0 8px;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .window-title {
+            flex-grow: 1;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 500;
+            color: #444;
         }
 
         .window-controls {
             display: flex;
-            gap: 8px;
-            margin-right: 15px;
+            align-items: center;
         }
 
         .window-control {
             width: 12px;
             height: 12px;
             border-radius: 50%;
+            margin-right: 7px;
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+
+        .close { background-color: #ff5f56; }
+        .minimize { background-color: #ffbd2e; }
+        .maximize { background-color: #27c93f; }
+
+        /* Finder Window Specifics */
+        #finderWindow {
+            width: 700px;
+            height: 500px;
+        }
+
+        .finder-content {
+            display: flex;
+            flex-grow: 1;
+            height: calc(100% - 28px);
+        }
+
+        .finder-sidebar {
+            width: 180px;
+            background: #ececec;
+            padding: 10px 0;
+            flex-shrink: 0;
+            border-right: 1px solid #ddd;
+        }
+
+        .finder-sidebar-item {
+            padding: 5px 15px;
+            cursor: pointer;
+            transition: background 0.1s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .finder-sidebar-item:hover {
+            background: #e0e0e0;
+        }
+
+        .finder-sidebar-item.active {
+            background: #007aff;
+            color: white;
+        }
+
+        .finder-main {
+            flex-grow: 1;
+            padding: 15px;
+            background: #ffffff;
+            overflow-y: auto;
+        }
+
+        .finder-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            gap: 20px;
+        }
+
+        .finder-grid-item {
+            text-align: center;
+            user-select: none;
             cursor: pointer;
         }
 
-        .close { background: #ff5f57; }
-        .minimize { background: #ffbd2e; }
-        .maximize { background: #28ca42; }
-
-        .window-title {
-            flex: 1;
-            font-size: 13px;
-            font-weight: 600;
+        .finder-grid-item-image {
+            width: 64px;
+            height: 64px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            margin: 0 auto 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
         }
-
-        /* === Safari Window === */
+        
+        /* Safari Window Specifics */
         #safariWindow {
             width: 1000px;
             height: 700px;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            top: 50px;
+            left: calc(50% - 500px);
         }
-
+        
         .browser-toolbar {
             display: flex;
-            padding: 8px 15px;
-            background: rgba(255, 255, 255, 0.7);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-            gap: 10px;
             align-items: center;
+            padding: 5px 10px;
+            background: #f7f7f7;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .toolbar-button {
+            padding: 5px 8px;
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 1;
+            transition: opacity 0.2s;
+        }
+
+        .toolbar-button:hover {
+            opacity: 0.7;
         }
 
         .url-bar {
-            flex: 1;
-            padding: 8px 12px;
-            border: 1px solid rgba(0, 0, 0, 0.1);
+            flex-grow: 1;
+            margin: 0 10px;
+            padding: 5px 15px;
             border-radius: 20px;
+            border: 1px solid #ccc;
+            outline: none;
             font-size: 13px;
-            background: white;
+            background: #fff;
         }
 
         .browser-content {
-            flex: 1;
             display: flex;
-            overflow: hidden;
+            flex-grow: 1;
+            height: calc(100% - 63px); /* 28px header + 35px toolbar */
         }
 
         .browser-sidebar {
             width: 200px;
-            background: rgba(245, 245, 245, 0.8);
-            border-right: 1px solid rgba(0, 0, 0, 0.1);
-            padding: 15px;
+            background: #f9f9f9;
+            border-right: 1px solid #ddd;
+            flex-shrink: 0;
+            padding: 15px 10px;
+            overflow-y: auto;
         }
 
-        .browser-main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .browser-tabs {
-            display: flex;
-            background: rgba(240, 240, 240, 0.8);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-            min-height: 35px;
-        }
-
-        .browser-tab {
-            padding: 8px 15px;
-            cursor: pointer;
-            border-right: 1px solid rgba(0, 0, 0, 0.1);
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(240, 240, 240, 0.8);
-        }
-
-        .browser-tab.active {
-            background: white;
-        }
-
-        .web-content {
-            flex: 1;
-            padding: 0;
-            overflow: auto;
-            background: white;
-        }
-
-        .webpage {
-            width: 100%;
-            height: 100%;
-            border: none;
+        .sidebar-title {
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 10px;
+            padding: 0 5px;
         }
 
         .favorites-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            padding: 20px;
+            gap: 10px;
         }
 
         .favorite-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 15px;
-            background: white;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: transform 0.2s;
             text-align: center;
+            padding: 10px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.1s;
+            font-size: 12px;
         }
 
         .favorite-item:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            background: #eee;
         }
 
         .favorite-icon {
-            font-size: 32px;
-            margin-bottom: 10px;
-        }
-
-        /* === Calendar Window === */
-        #calendarWindow {
-            width: 800px;
-            height: 600px;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        .calendar-toolbar {
-            display: flex;
-            padding: 8px 15px;
-            background: rgba(255, 255, 255, 0.7);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-            gap: 10px;
-            align-items: center;
-        }
-
-        .calendar-content {
-            flex: 1;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .calendar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 1px;
-            background: rgba(0, 0, 0, 0.1);
-            flex: 1;
-        }
-
-        .calendar-day {
-            background: white;
-            padding: 10px;
-            min-height: 80px;
-            font-size: 12px;
-        }
-
-        .calendar-day.other-month {
-            background: rgba(245, 245, 245, 0.8);
-            color: #999;
-        }
-
-        .calendar-day.today {
-            background: rgba(0, 122, 255, 0.1);
-            border: 2px solid #007AFF;
-        }
-
-        .day-number {
-            font-weight: bold;
+            font-size: 24px;
             margin-bottom: 5px;
         }
 
-        .calendar-event {
-            background: #007AFF;
-            color: white;
-            padding: 2px 5px;
-            border-radius: 3px;
-            font-size: 10px;
-            margin-bottom: 2px;
-        }
-
-        /* === Trash Window === */
-        #trashWindow {
-            width: 700px;
-            height: 500px;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        .trash-content {
-            flex: 1;
-            padding: 20px;
+        .browser-main {
+            flex-grow: 1;
             display: flex;
             flex-direction: column;
-        }
-
-        .trash-info {
-            background: rgba(0, 122, 255, 0.1);
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .trash-items {
-            flex: 1;
-            overflow-y: auto;
-        }
-
-        .trash-item {
-            display: flex;
-            align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-            gap: 10px;
-        }
-
-        .trash-item-icon {
-            width: 32px;
-            height: 32px;
-            background-size: contain;
-            background-repeat: no-repeat;
-        }
-
-        .trash-item-info {
-            flex: 1;
-        }
-
-        .trash-item-name {
-            font-weight: bold;
-            font-size: 13px;
-        }
-
-        .trash-item-path {
-            font-size: 11px;
-            color: #666;
-        }
-
-        .trash-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        /* === Finder Window === */
-        #finderWindow {
-            width: 800px;
-            height: 500px;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        .finder-toolbar {
-            display: flex;
-            padding: 8px 15px;
-            background: rgba(255, 255, 255, 0.7);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-            gap: 15px;
-        }
-
-        .toolbar-button {
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: background 0.2s;
-        }
-
-        .toolbar-button:hover {
-            background: rgba(0, 0, 0, 0.1);
-        }
-
-        .finder-content {
-            display: flex;
-            flex: 1;
             overflow: hidden;
         }
 
-        .sidebar {
-            width: 200px;
-            background: rgba(245, 245, 245, 0.8);
-            border-right: 1px solid rgba(0, 0, 0, 0.1);
-            padding: 15px 0;
+        .browser-tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            background: #fff;
+            padding-left: 10px;
         }
 
-        .sidebar-section {
-            margin-bottom: 20px;
-        }
-
-        .sidebar-title {
-            font-size: 12px;
-            font-weight: 600;
+        .browser-tab {
             padding: 5px 15px;
-            color: #666;
-        }
-
-        .sidebar-item {
-            display: flex;
-            align-items: center;
-            padding: 8px 15px;
+            border-radius: 8px 8px 0 0;
             cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .sidebar-item:hover {
-            background: rgba(0, 0, 0, 0.05);
-        }
-
-        .sidebar-item.active {
-            background: rgba(0, 122, 255, 0.1);
-        }
-
-        .sidebar-icon {
-            margin-right: 10px;
-            font-size: 16px;
-        }
-
-        .files-area {
-            flex: 1;
-            padding: 15px;
-            overflow-y: auto;
-        }
-
-        .files-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 15px;
-        }
-
-        .file-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.2s;
-            position: relative;
-        }
-
-        .file-item:hover {
-            background: rgba(0, 0, 0, 0.05);
-        }
-
-        .file-item.selected {
-            background: rgba(0, 122, 255, 0.1);
-        }
-
-        .file-icon {
-            width: 48px;
-            height: 48px;
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            margin-bottom: 8px;
-        }
-
-        .folder-icon {
-            background-image: url('Folder.png');
-        }
-
-        .html-file { background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%23E44D26" d="M4.136 3.012h15.729l-1.431 16.15-6.451 1.826-6.414-1.826-1.433-16.15zm5.266 7.302l-.2-2.29h7.199l.2-1.978h-9.599l.6 6.678h6.264l-.266 2.876-2.099.57v.004h-.065v-.003l-2.099-.57-.134-1.477h-2.064l.201 2.813 3.842 1.06h.046v-.001h.032l.014.001 3.868-1.061.534-6.017h-7.134z"/></svg>'); }
-        .css-file { background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%231572B6" d="M4.192 3.143h15.616l-1.431 16.125-6.383 1.8-6.385-1.8-1.417-16.125zm2.735 2.948h-.599l.401 4.426h5.294l-.133 1.328h-5.162l.4 4.426h5.745l-.2 1.937-2.87.792-2.896-.792-.184-2.078h-1.649l.267 3.244 4.924 1.388h.064l4.924-1.388.534-6.076h-7.999l-.133-1.329h8.265l.133-1.328h-8.398z"/></svg>'); }
-        .js-file { background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%23F7DF1E" d="M3 3h18v18H3V3zm8.5 14.5c0 .88-.56 1.64-1.53 1.95-.53.17-1.08.26-1.67.26-.47 0-.92-.06-1.36-.19l.34-1.73c.29.12.68.19 1.02.19.44 0 .88-.09 1.02-.26.14-.17.21-.44.21-.82V9h2.07v8.5zm5.36-1.44c-.53.79-1.24 1.18-2.13 1.18-.62 0-1.12-.17-1.5-.51-.38-.34-.56-.79-.56-1.35 0-.53.17-.97.51-1.31.34-.34.85-.62 1.53-.85.85-.26 1.36-.44 1.53-.53.17-.09.26-.26.26-.53 0-.29-.12-.47-.35-.56-.23-.09-.62-.14-1.17-.14-.5 0-.94.08-1.31.23l-.35-1.67c.47-.2 1.06-.29 1.77-.29.62 0 1.14.11 1.56.32.42.21.74.53.97.94.23.41.35.88.35 1.41 0 .62-.23 1.14-.68 1.56-.45.42-1.08.74-1.89.97-.5.15-.85.29-1.05.41-.2.12-.29.29-.29.53 0 .23.11.41.32.53.21.12.56.18 1.05.18.56 0 1.05-.11 1.47-.32l.35 1.67c-.41.23-.97.35-1.67.35-.79 0-1.44-.17-1.95-.51-.51-.34-.85-.79-1.02-1.35-.17-.56-.26-1.17-.26-1.83 0-.62.14-1.17.41-1.65.27-.48.68-.85 1.23-1.11.55-.26 1.23-.44 2.04-.56.8-.12 1.38-.26 1.73-.41.35-.15.53-.41.53-.79 0-.32-.14-.56-.41-.71-.27-.15-.68-.23-1.23-.23-.5 0-.94.08-1.31.23l-.35-1.67c.5-.2 1.14-.29 1.92-.29.68 0 1.26.11 1.74.32.48.21.85.53 1.11.94.26.41.39.88.39 1.41 0 .62-.23 1.14-.68 1.56-.45.42-1.08.74-1.89.97z"/></svg>'); }
-
-        .file-name {
+            background: #f0f0f0;
+            margin-right: 2px;
             font-size: 12px;
-            text-align: center;
-            word-break: break-word;
-            max-width: 80px;
-        }
-
-        .path-bar {
+            color: #666;
             display: flex;
-            padding: 8px 15px;
-            background: rgba(245, 245, 245, 0.8);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-            font-size: 13px;
-        }
-
-        .path-segment {
-            cursor: pointer;
-            padding: 2px 6px;
-            border-radius: 4px;
-            transition: background 0.2s;
-        }
-
-        .path-segment:hover {
-            background: rgba(0, 0, 0, 0.05);
-        }
-
-        .path-separator {
-            margin: 0 5px;
-            color: #999;
-        }
-
-        /* === Code Editor Window === */
-        #codeEditorWindow {
-            width: 1000px;
-            height: 700px;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        .editor-toolbar {
-            display: flex;
-            padding: 8px 15px;
-            background: rgba(255, 255, 255, 0.7);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-            gap: 10px;
             align-items: center;
         }
 
-        .editor-content {
-            flex: 1;
-            display: flex;
+        .browser-tab.active {
+            background: #fff;
+            color: #333;
+            border-top: 1px solid #ddd;
+            border-left: 1px solid #ddd;
+            border-right: 1px solid #ddd;
+            border-bottom: none;
+        }
+
+        .web-content {
+            flex-grow: 1;
             overflow: hidden;
         }
 
-        .editor-sidebar {
-            width: 250px;
-            background: rgba(245, 245, 245, 0.8);
-            border-right: 1px solid rgba(0, 0, 0, 0.1);
-            padding: 15px;
-            overflow-y: auto;
-        }
-
-        .editor-main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .editor-tabs {
-            display: flex;
-            background: rgba(240, 240, 240, 0.8);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-            min-height: 35px;
-        }
-
-        .editor-tab {
-            padding: 8px 15px;
-            cursor: pointer;
-            border-right: 1px solid rgba(0, 0, 0, 0.1);
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(240, 240, 240, 0.8);
-        }
-
-        .editor-tab.active {
-            background: white;
-        }
-
-        .tab-close {
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            cursor: pointer;
-        }
-
-        .tab-close:hover {
-            background: rgba(0, 0, 0, 0.1);
-        }
-
-        .editor-panes {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        .code-pane {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            border-right: 1px solid rgba(0, 0, 0, 0.1);
-        }
-
-        .preview-pane {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .pane-header {
-            padding: 8px 15px;
-            background: rgba(245, 245, 245, 0.8);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .code-area {
-            flex: 1;
-            padding: 15px;
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-            font-size: 14px;
-            line-height: 1.5;
-            background: #1e1e1e;
-            color: #d4d4d4;
-            overflow: auto;
-            outline: none;
-            white-space: pre;
-            tab-size: 4;
-        }
-
-        .preview-area {
-            flex: 1;
-            padding: 15px;
-            overflow: auto;
-            background: white;
-        }
-
-        .file-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .file-list-item {
-            padding: 8px 12px;
-            cursor: pointer;
-            border-radius: 4px;
-            margin-bottom: 2px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
-        }
-
-        .file-list-item:hover {
-            background: rgba(0, 0, 0, 0.05);
-        }
-
-        .file-list-item.active {
-            background: rgba(0, 122, 255, 0.1);
-        }
-
-        .file-type-icon {
-            width: 16px;
-            height: 16px;
-            background-size: contain;
-        }
-
-        /* === Other Apps === */
-        #mailWindow, #settingsWindow {
-            width: 600px;
-            height: 400px;
-            top: 100px;
-            left: 100px;
-        }
-
-        .app-content {
-            flex: 1;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            color: #666;
-        }
-
-        /* === Modal === */
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
+        #webpage {
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            display: none;
+            border: none;
+            display: block;
+        }
+
+        /* Стилі для заглушки, оскільки iframe не відображатиме зовнішні сайти без спеціальних дозволів */
+        .placeholder-page {
+            width: 100%;
+            height: 100%;
+            background-color: #fff;
+            display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 1004;
-        }
-
-        .modal-content {
-            background: white;
+            text-align: center;
             padding: 20px;
-            border-radius: 10px;
-            min-width: 300px;
+            box-sizing: border-box;
         }
 
-        .modal-input {
-            width: 100%;
-            padding: 8px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+        .placeholder-page h1 {
+            color: #333;
+            font-size: 24px;
         }
-
-        .modal-select {
-            width: 100%;
-            padding: 8px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background: white;
+        
+        .placeholder-page p {
+            color: #666;
+            font-size: 16px;
+            max-width: 500px;
         }
-
-        .modal-buttons {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 15px;
+        
+        .placeholder-page a {
+            color: #007aff;
+            text-decoration: none;
+            font-weight: bold;
         }
-
-        .modal-button {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
+        
+        .placeholder-page a:hover {
+            text-decoration: underline;
         }
-
-        .modal-button.primary {
-            background: #007AFF;
-            color: white;
-        }
+        
     </style>
 </head>
 <body>
 
-    <!-- Верхня панель -->
     <header id="menubar">
         <nav class="left-side">
             <span class="apple-logo"></span>
@@ -873,38 +514,39 @@
         </nav>
     </header>
 
-    <!-- Робочий стіл -->
     <main id="desktop">
-        <div class="desktop-icon" data-name="Macintosh HD">
-            <div class="desktop-icon-image" style="background-image: url('Folder.png')"></div>
+        <div class="desktop-icon" data-name="Macintosh HD" data-app="finderWindow">
+            <div class="desktop-icon-image"></div>
+            <span>Macintosh HD</span>
         </div>
-        <div class="desktop-icon" data-name="Files">
-            <div class="desktop-icon-image" style="background-image: url('Folder.png')"></div>
+        <div class="desktop-icon" data-name="Files" data-app="finderWindow">
+            <div class="desktop-icon-image"></div>
+            <span>Файли</span>
         </div>
-        <div class="desktop-icon" data-name="Downloads">
-            <div class="desktop-icon-image" style="background-image: url('Folder.png')"></div>
+        <div class="desktop-icon" data-name="Downloads" data-app="finderWindow">
+            <div class="desktop-icon-image"></div>
+            <span>Завантаження</span>
         </div>
         <div class="desktop-icon" data-name="Trash">
-            <div class="desktop-icon-image" style="background-image: url('Trash.png')"></div>
+            <div class="desktop-icon-image"></div>
+            <span>Кошик</span>
         </div>
     </main>
 
-    <!-- Dock -->
     <footer id="dock">
-        <div class="dock-item" data-name="Finder"><div class="icon-shape finder"></div><div class="dot active"></div></div>
-        <div class="dock-item" data-name="Safari"><div class="icon-shape safari"></div></div>
-        <div class="dock-item" data-name="Mail"><div class="icon-shape mail"></div></div>
-        <div class="dock-item" data-name="Code Editor"><div class="icon-shape code-editor"></div></div>
-        <div class="dock-item" data-name="Calendar"><div class="icon-shape calendar"></div></div>
-        <div class="dock-item" data-name="Music"><div class="icon-shape music"></div></div>
-        <div class="dock-item" data-name="Photos"><div class="icon-shape photos"></div></div>
-        <div class="dock-item" data-name="Notes"><div class="icon-shape notes"></div></div>
-        <div class="dock-item" data-name="Settings"><div class="icon-shape settings"></div></div>
-        <div class="dock-item" data-name="App Store"><div class="icon-shape appstore"></div></div>
+        <div class="dock-item" data-name="Finder" data-window-id="finderWindow"><div class="icon-shape finder"></div><div class="dot active"></div></div>
+        <div class="dock-item" data-name="Safari" data-window-id="safariWindow"><div class="icon-shape safari"></div></div>
+        <div class="dock-item" data-name="Mail" data-window-id="mailWindow"><div class="icon-shape mail"></div></div>
+        <div class="dock-item" data-name="Code Editor" data-window-id="codeWindow"><div class="icon-shape code-editor"></div></div>
+        <div class="dock-item" data-name="Calendar" data-window-id="calendarWindow"><div class="icon-shape calendar"></div></div>
+        <div class="dock-item" data-name="Music" data-window-id="musicWindow"><div class="icon-shape music"></div></div>
+        <div class="dock-item" data-name="Photos" data-window-id="photosWindow"><div class="icon-shape photos"></div></div>
+        <div class="dock-item" data-name="Notes" data-window-id="notesWindow"><div class="icon-shape notes"></div></div>
+        <div class="dock-item" data-name="Settings" data-window-id="settingsWindow"><div class="icon-shape settings"></div></div>
+        <div class="dock-item" data-name="App Store" data-window-id="appStoreWindow"><div class="icon-shape appstore"></div></div>
         <div class="dock-item" data-name="Trash"><div class="icon-shape trash"></div></div>
     </footer>
 
-    <!-- Finder Window -->
     <div class="app-window" id="finderWindow">
         <div class="window-header">
             <div class="window-controls">
@@ -912,40 +554,54 @@
                 <div class="window-control minimize"></div>
                 <div class="window-control maximize"></div>
             </div>
-            <div class="window-title">Files</div>
-        </div>
-        <div class="finder-toolbar">
-            <div class="toolbar-button" id="newFolderBtn">Нова папка</div>
-            <div class="toolbar-button" id="newFileBtn">Новий файл</div>
-            <div class="toolbar-button" id="deleteFolderBtn">Видалити</div>
+            <div class="window-title">Finder</div>
         </div>
         <div class="finder-content">
-            <div class="sidebar">
-                <div class="sidebar-section">
-                    <div class="sidebar-title">Улюблені</div>
-                    <div class="sidebar-item active">
-                        <span class="sidebar-icon">🏠</span>
-                        <span>Головна</span>
-                    </div>
-                    <div class="sidebar-item">
-                        <span class="sidebar-icon">📁</span>
-                        <span>Files</span>
-                    </div>
-                    <div class="sidebar-item">
-                        <span class="sidebar-icon">⬇️</span>
-                        <span>Завантаження</span>
-                    </div>
+            <div class="finder-sidebar">
+                <div class="finder-sidebar-item active">
+                    <span style="color: blue;">★</span> Вибране
+                </div>
+                <div class="finder-sidebar-item">
+                    <span style="color: grey;">⌂</span> Ваш профіль
+                </div>
+                <div class="finder-sidebar-item">
+                    <span style="color: orange;">📦</span> Програми
+                </div>
+                <div class="finder-sidebar-item">
+                    <span style="color: green;">⌁</span> Документи
+                </div>
+                <div class="finder-sidebar-item">
+                    <span style="color: purple;">🎶</span> Музика
                 </div>
             </div>
-            <div class="files-area">
-                <div class="files-grid" id="filesGrid">
-                    <!-- Folders will be dynamically added here -->
+            <div class="finder-main">
+                <h2>Ваші файли</h2>
+                <div class="finder-grid">
+                    <div class="finder-grid-item">
+                        <div class="finder-grid-item-image" style="background-color: #f77f00;">📁</div>
+                        <span>Документи</span>
+                    </div>
+                    <div class="finder-grid-item">
+                        <div class="finder-grid-item-image" style="background-color: #008744;">🖼️</div>
+                        <span>Зображення</span>
+                    </div>
+                    <div class="finder-grid-item">
+                        <div class="finder-grid-item-image" style="background-color: #8c004a;">🎬</div>
+                        <span>Відео</span>
+                    </div>
+                    <div class="finder-grid-item">
+                        <div class="finder-grid-item-image" style="background-color: #0057e7;">💾</div>
+                        <span>Програми</span>
+                    </div>
+                    <div class="finder-grid-item">
+                        <div class="finder-grid-item-image" style="background-color: #d62d20;">⚙️</div>
+                        <span>Налаштування</span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Safari Window -->
     <div class="app-window" id="safariWindow">
         <div class="window-header">
             <div class="window-controls">
@@ -959,7 +615,7 @@
             <div class="toolbar-button" id="backBtn">←</div>
             <div class="toolbar-button" id="forwardBtn">→</div>
             <div class="toolbar-button" id="refreshBtn">⟳</div>
-            <input type="text" class="url-bar" id="urlBar" value="https://www.apple.com" placeholder="Введіть адресу...">
+            <input type="text" class="url-bar" id="urlBar" value="apple.com" placeholder="Введіть адресу...">
             <div class="toolbar-button" id="goBtn">Перейти</div>
         </div>
         <div class="browser-content">
@@ -970,393 +626,258 @@
                         <div class="favorite-icon">🍎</div>
                         <div>Apple</div>
                     </div>
-                    <div class="favorite-item" data-url="https://www.youtube.com">
-                        <div class="favorite-icon">📺</div>
-                        <div>YouTube</div>
-                    </div>
                     <div class="favorite-item" data-url="https://www.google.com">
                         <div class="favorite-icon">🔍</div>
                         <div>Google</div>
                     </div>
-                    <div class="favorite-item" data-url="https://github.com">
-                        <div class="favorite-icon">💻</div>
-                        <div>GitHub</div>
+                    <div class="favorite-item" data-url="https://www.bing.com">
+                        <div class="favorite-icon">🔎</div>
+                        <div>Bing</div>
+                    </div>
+                    <div class="favorite-item" data-url="https://www.wikipedia.org">
+                        <div class="favorite-icon">📚</div>
+                        <div>Wikipedia</div>
                     </div>
                 </div>
             </div>
             <div class="browser-main">
                 <div class="browser-tabs">
-                    <div class="browser-tab active">Головна</div>
+                    <div class="browser-tab active">
+                        <span id="tabTitle">Початкова сторінка</span>
+                    </div>
                 </div>
                 <div class="web-content">
-                    <iframe class="webpage" id="webpage" src="https://www.apple.com" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Calendar Window -->
-    <div class="app-window" id="calendarWindow">
-        <div class="window-header">
-            <div class="window-controls">
-                <div class="window-control close" data-window="calendarWindow"></div>
-                <div class="window-control minimize"></div>
-                <div class="window-control maximize"></div>
-            </div>
-            <div class="window-title">Calendar</div>
-        </div>
-        <div class="calendar-toolbar">
-            <div class="toolbar-button" id="prevMonthBtn">‹</div>
-            <div class="toolbar-button" id="nextMonthBtn">›</div>
-            <div id="currentMonth" style="flex: 1; text-align: center; font-weight: bold;"></div>
-            <div class="toolbar-button" id="todayBtn">Сьогодні</div>
-        </div>
-        <div class="calendar-content">
-            <div class="calendar-header">
-                <div>Пн</div>
-                <div>Вт</div>
-                <div>Ср</div>
-                <div>Чт</div>
-                <div>Пт</div>
-                <div>Сб</div>
-                <div>Нд</div>
-            </div>
-            <div class="calendar-grid" id="calendarGrid">
-                <!-- Calendar days will be dynamically added here -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Trash Window -->
-    <div class="app-window" id="trashWindow">
-        <div class="window-header">
-            <div class="window-controls">
-                <div class="window-control close" data-window="trashWindow"></div>
-                <div class="window-control minimize"></div>
-                <div class="window-control maximize"></div>
-            </div>
-            <div class="window-title">Trash</div>
-        </div>
-        <div class="trash-content">
-            <div class="trash-info">
-                <h3 style="margin: 0 0 10px 0;">Кошик</h3>
-                <p style="margin: 0; font-size: 13px;">Видалені файли: <span id="trashCount">0</span></p>
-            </div>
-            <div class="trash-items" id="trashItems">
-                <!-- Trash items will be dynamically added here -->
-            </div>
-            <div class="trash-actions">
-                <div class="toolbar-button" id="emptyTrashBtn">Очистити кошик</div>
-                <div class="toolbar-button" id="restoreTrashBtn">Відновити все</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Code Editor Window -->
-    <div class="app-window" id="codeEditorWindow">
-        <div class="window-header">
-            <div class="window-controls">
-                <div class="window-control close" data-window="codeEditorWindow"></div>
-                <div class="window-control minimize"></div>
-                <div class="window-control maximize"></div>
-            </div>
-            <div class="window-title">Code Editor</div>
-        </div>
-        <div class="editor-toolbar">
-            <div class="toolbar-button" id="editorNewFileBtn">Новий файл</div>
-            <div class="toolbar-button" id="saveFileBtn">Зберегти</div>
-            <div class="toolbar-button" id="runCodeBtn">Запустити</div>
-            <div class="toolbar-button" id="openProjectBtn">Відкрити проект</div>
-        </div>
-        <div class="editor-content">
-            <div class="editor-sidebar">
-                <div class="sidebar-title">Файли проекту</div>
-                <ul class="file-list" id="projectFiles">
-                    <!-- Project files will be listed here -->
-                </ul>
-            </div>
-            <div class="editor-main">
-                <div class="editor-tabs" id="editorTabs">
-                    <!-- Tabs will be dynamically added here -->
-                </div>
-                <div class="editor-panes">
-                    <div class="code-pane">
-                        <div class="pane-header">Редактор коду</div>
-                        <div class="code-area" id="codeEditor" contenteditable="true"></div>
+                    <div class="placeholder-page" id="safariPlaceholder">
+                        <h1>Симуляція веб-сторінки</h1>
+                        <p>На жаль, ваш браузер блокує відображення більшості зовнішніх веб-сайтів (як-от Apple, Google) у цій симуляції через політику безпеки. Ви можете побачити це у консолі розробника (CSP/X-Frame-Options).</p>
+                        <p>Проте ви можете симулювати перехід на інший сайт, змінивши адресу в полі вище. Спробуйте: <a href="javascript:void(0)" onclick="document.getElementById('urlBar').value='https://example.com'; document.getElementById('goBtn').click();">example.com</a></p>
                     </div>
-                    <div class="preview-pane">
-                        <div class="pane-header">Попередній перегляд</div>
-                        <iframe class="preview-area" id="previewFrame" sandbox="allow-scripts"></iframe>
-                    </div>
+                    <iframe id="webpage" style="display: none;"></iframe>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Other App Windows -->
-    <div class="app-window" id="mailWindow">
-        <div class="window-header">
-            <div class="window-controls">
-                <div class="window-control close" data-window="mailWindow"></div>
-                <div class="window-control minimize"></div>
-                <div class="window-control maximize"></div>
-            </div>
-            <div class="window-title">Mail</div>
-        </div>
-        <div class="app-content">
-            Поштовий клієнт
-        </div>
+    
+    <div class="app-window" id="mailWindow" style="width: 400px; height: 300px; top: 100px; left: 650px;">
+        <div class="window-header"><div class="window-controls"><div class="window-control close" data-window="mailWindow"></div><div class="window-control minimize"></div><div class="window-control maximize"></div></div><div class="window-title">Пошта</div></div>
+        <div style="padding: 20px; text-align: center;"><h1>✉️ Пошта</h1><p>Це вікно Пошти.</p></div>
     </div>
-
-    <div class="app-window" id="settingsWindow">
-        <div class="window-header">
-            <div class="window-controls">
-                <div class="window-control close" data-window="settingsWindow"></div>
-                <div class="window-control minimize"></div>
-                <div class="window-control maximize"></div>
-            </div>
-            <div class="window-title">Settings</div>
-        </div>
-        <div class="app-content">
-            Налаштування системи
-        </div>
-    </div>
-
-    <!-- Context Menu -->
-    <div class="context-menu" id="contextMenu">
-        <div class="context-menu-item" id="contextNewFolder">Нова папка</div>
-        <div class="context-menu-item" id="contextNewFile">Новий файл</div>
-        <div class="context-menu-divider"></div>
-        <div class="context-menu-item" id="contextOpen">Відкрити</div>
-        <div class="context-menu-item" id="contextDelete">Видалити</div>
-        <div class="context-menu-item" id="contextRename">Перейменувати</div>
-    </div>
-
-    <!-- Name Input Modal -->
-    <div class="modal" id="nameModal">
-        <div class="modal-content">
-            <h3 style="margin: 0 0 15px 0;" id="modalTitle">Введіть назву</h3>
-            <input type="text" class="modal-input" id="itemNameInput" placeholder="Назва" value="">
-            <select class="modal-select" id="fileTypeSelect" style="display: none;">
-                <option value="html">HTML файл</option>
-                <option value="css">CSS файл</option>
-                <option value="js">JavaScript файл</option>
-            </select>
-            <div class="modal-buttons">
-                <button class="modal-button" id="cancelNameBtn">Скасувати</button>
-                <button class="modal-button primary" id="confirmNameBtn">Створити</button>
-            </div>
-        </div>
+    <div class="app-window" id="settingsWindow" style="width: 500px; height: 400px; top: 150px; left: 150px;">
+        <div class="window-header"><div class="window-controls"><div class="window-control close" data-window="settingsWindow"></div><div class="window-control minimize"></div><div class="window-control maximize"></div></div><div class="window-title">Системні налаштування</div></div>
+        <div style="padding: 20px; text-align: center;"><h1>⚙️ Налаштування</h1><p>Тут ви можете налаштувати систему.</p></div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            let folderCounter = 1;
-            let fileCounter = 1;
-            let selectedItem = null;
-            let isDragging = false;
-            let dragOffset = { x: 0, y: 0 };
-            let folders = {};
-            let files = {};
-            let currentProject = null;
-            let openTabs = [];
-            let activeTab = null;
-            let trashItems = [];
-            let currentDate = new Date();
-
-            // Шаблони файлів
-            const fileTemplates = {
-                html: `<!DOCTYPE html>
-<html lang="uk">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Новий документ</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <h1>Привіт, світ!</h1>
-    <p>Це новий HTML документ</p>
-    <script src="script.js"><\/script>
-</body>
-</html>`,
-                css: `/* Стилі для нового проекту */
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    margin: 0;
-    padding: 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-}
-
-h1 {
-    text-align: center;
-    font-size: 3em;
-    margin-bottom: 20px;
-}
-
-.container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-}`,
-                js: `// JavaScript код
-console.log('Привіт від macOS!');
-
-function welcomeMessage() {
-    const now = new Date();
-    alert('Ласкаво просимо! Сьогодні: ' + now.toLocaleDateString('uk-UA'));
-}
-
-// Викликаємо функцію при завантаженні
-document.addEventListener('DOMContentLoaded', welcomeMessage);
-
-// Приклад класу
-class Greeter {
-    constructor(name) {
-        this.name = name;
-    }
-    
-    greet() {
-        return 'Привіт, ' + this.name + '!';
-    }
-}
-
-const greeter = new Greeter('Користувач');
-console.log(greeter.greet());`
-            };
-
-            /* -----------------------------
-               1. ОНОВЛЕННЯ ЧАСУ В MENUBAR
-            ------------------------------ */
-            const dateTimeElement = document.querySelector('.date-time');
-
-            function updateDateTime() {
-                const now = new Date();
-                const options = {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    weekday: 'short',
-                    day: 'numeric',
-                    month: 'short'
-                };
-                const formattedDate = now
-                    .toLocaleDateString('uk-UA', options)
-                    .replace(',', '');
-                if (dateTimeElement) {
-                    dateTimeElement.textContent = formattedDate;
-                }
-            }
-
-            updateDateTime();
-            setInterval(updateDateTime, 60000);
-
-            /* -----------------------------
-               2. ЕФЕКТ "СТРИБКА" В DOCK
-            ------------------------------ */
-            const dockItems = document.querySelectorAll('.dock-item');
-
-            dockItems.forEach((item) => {
-                item.addEventListener('mouseenter', () => {
-                    item.classList.add('active');
-                    const prev = item.previousElementSibling;
-                    const next = item.nextElementSibling;
-                    if (prev) prev.classList.add('nearby');
-                    if (next) next.classList.add('nearby');
-                });
-
-                item.addEventListener('mouseleave', () => {
-                    item.classList.remove('active');
-                    const prev = item.previousElementSibling;
-                    const next = item.nextElementSibling;
-                    if (prev) prev.classList.remove('nearby');
-                    if (next) next.classList.remove('nearby');
-                });
-            });
-
-            /* -----------------------------
-               3. УПРАВЛІННЯ ВІКНАМИ
-            ------------------------------ */
-            const windows = {
-                finderWindow: document.getElementById('finderWindow'),
-                safariWindow: document.getElementById('safariWindow'),
-                mailWindow: document.getElementById('mailWindow'),
-                settingsWindow: document.getElementById('settingsWindow'),
-                codeEditorWindow: document.getElementById('codeEditorWindow'),
-                calendarWindow: document.getElementById('calendarWindow'),
-                trashWindow: document.getElementById('trashWindow')
-            };
-
-            // Функція закриття вікон
-            function closeWindow(windowId) {
-                if (windows[windowId]) {
-                    windows[windowId].style.display = 'none';
-                    // Видаляємо активну точку з Dock
-                    const appName = windowId.replace('Window', '');
-                    const dockItem = document.querySelector(`.dock-item[data-name="${appName.charAt(0).toUpperCase() + appName.slice(1)}"]`);
-                    if (dockItem) {
-                        dockItem.querySelector('.dot').classList.remove('active');
-                    }
-                }
-            }
-
-            // Додаємо обробники закриття для всіх вікон
-            document.querySelectorAll('.window-control.close').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const windowId = e.target.getAttribute('data-window');
-                    closeWindow(windowId);
-                });
-            });
-
-            // Відкриття додатків з Dock
-            document.querySelector('.dock-item[data-name="Finder"]').addEventListener('click', () => openApp('finderWindow', 'Finder'));
-            document.querySelector('.dock-item[data-name="Safari"]').addEventListener('click', () => openApp('safariWindow', 'Safari'));
-            document.querySelector('.dock-item[data-name="Mail"]').addEventListener('click', () => openApp('mailWindow', 'Mail'));
-            document.querySelector('.dock-item[data-name="Settings"]').addEventListener('click', () => openApp('settingsWindow', 'Settings'));
-            document.querySelector('.dock-item[data-name="Code Editor"]').addEventListener('click', () => openApp('codeEditorWindow', 'Code Editor'));
-            document.querySelector('.dock-item[data-name="Calendar"]').addEventListener('click', () => openApp('calendarWindow', 'Calendar'));
-            document.querySelector('.dock-item[data-name="Trash"]').addEventListener('click', () => openApp('trashWindow', 'Trash'));
-
-            // Відкриття Files з робочого столу
-            document.querySelector('.desktop-icon[data-name="Files"]').addEventListener('click', () => openApp('finderWindow', 'Finder'));
-            document.querySelector('.desktop-icon[data-name="Trash"]').addEventListener('click', () => openApp('trashWindow', 'Trash'));
-
-            function openApp(windowId, appName) {
-                if (windows[windowId]) {
-                    windows[windowId].style.display = 'flex';
-                    // Додаємо активну точку в Dock
-                    const dockItem = document.querySelector(`.dock-item[data-name="${appName}"]`);
-                    if (dockItem) {
-                        dockItem.querySelector('.dot').classList.add('active');
-                    }
-
-                    // Спеціальна логіка для деяких додатків
-                    if (windowId === 'calendarWindow') {
-                        renderCalendar();
-                    } else if (windowId === 'trashWindow') {
-                        updateTrashDisplay();
-                    }
-                }
-            }
-
-            /* -----------------------------
-               4. SAFARI BROWSER
-            ------------------------------ */
+            const dockItems = document.querySelectorAll('#dock .dock-item');
+            const appWindows = document.querySelectorAll('.app-window');
+            const desktopIcons = document.querySelectorAll('#desktop .desktop-icon');
+            const windowControls = document.querySelectorAll('.window-control.close');
+            const dateTimeDisplay = document.querySelector('.date-time');
             const urlBar = document.getElementById('urlBar');
-            const webpage = document.getElementById('webpage');
             const goBtn = document.getElementById('goBtn');
             const backBtn = document.getElementById('backBtn');
             const forwardBtn = document.getElementById('forwardBtn');
             const refreshBtn = document.getElementById('refreshBtn');
+            const tabTitle = document.getElementById('tabTitle');
+            const safariPlaceholder = document.getElementById('safariPlaceholder');
+            const webpage = document.getElementById('webpage');
+            const favoriteItems = document.querySelectorAll('.favorite-item');
 
-            function navigateToUrl(url) {
-                if (!url.startsWith('http')) {
-                    url = 'https://' + url;
-                }
-                webpage.src = url;
-                urlBar.value = url;
+            // --- Змінні для керування вікнами та історією Safari ---
+            let maxZIndex = 20;
+            let history = ['https://www.apple.com'];
+            let currentHistoryIndex = 0;
+            
+            // --- Функції керування часом ---
+            function updateTime() {
+                const now = new Date();
+                const timeOptions = { hour: '2-digit', minute: '2-digit' };
+                const dateOptions = { day: 'numeric', month: 'short' };
+                const time = now.toLocaleTimeString('uk-UA', timeOptions);
+                const date = now.toLocaleDateString('uk-UA', dateOptions).replace('.', ''); // 5 лис
+                dateTimeDisplay.textContent = `${date} ${time}`;
             }
 
+            // --- Функції керування вікнами ---
+
+            function bringWindowToFront(windowElement) {
+                appWindows.forEach(win => win.classList.remove('active'));
+                maxZIndex++;
+                windowElement.style.zIndex = maxZIndex;
+                windowElement.classList.add('active');
+            }
+
+            function openApp(windowId) {
+                const windowElement = document.getElementById(windowId);
+                if (windowElement) {
+                    windowElement.style.display = 'flex';
+                    bringWindowToFront(windowElement);
+                    document.querySelector(`#dock .dock-item[data-window-id="${windowId}"] .dot`).classList.add('active');
+                    document.querySelector('.app-name').textContent = windowElement.querySelector('.window-title').textContent;
+                    
+                    // Спеціальна логіка для Safari при відкритті
+                    if (windowId === 'safariWindow') {
+                        navigateToUrl(history[currentHistoryIndex], true);
+                    }
+                }
+            }
+
+            function closeApp(windowId) {
+                const windowElement = document.getElementById(windowId);
+                if (windowElement) {
+                    windowElement.style.display = 'none';
+                    document.querySelector(`#dock .dock-item[data-window-id="${windowId}"] .dot`).classList.remove('active');
+                    
+                    // Повертаємо назву Finder у Menu Bar, якщо це було активне вікно
+                    if (windowId === 'finderWindow') {
+                        document.querySelector('.app-name').textContent = 'Finder';
+                    }
+                }
+            }
+
+            function makeDraggable(element, handle) {
+                let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+
+                handle.onmousedown = dragMouseDown;
+
+                function dragMouseDown(e) {
+                    e = e || window.event;
+                    // Перетягування вікна автоматично робить його активним
+                    bringWindowToFront(element); 
+                    
+                    pos3 = e.clientX;
+                    pos4 = e.clientY;
+                    document.onmouseup = closeDragElement;
+                    document.onmousemove = elementDrag;
+                }
+
+                function elementDrag(e) {
+                    e = e || window.event;
+                    e.preventDefault();
+                    pos1 = pos3 - e.clientX;
+                    pos2 = pos4 - e.clientY;
+                    pos3 = e.clientX;
+                    pos4 = e.clientY;
+                    
+                    let newTop = element.offsetTop - pos2;
+                    let newLeft = element.offsetLeft - pos1;
+
+                    // Обмеження, щоб вікно не виходило за межі екрана
+                    if (newTop < 22) newTop = 22; 
+                    if (newLeft < 0) newLeft = 0; 
+                    if (newTop + element.offsetHeight > window.innerHeight - 50) newTop = window.innerHeight - element.offsetHeight - 50; 
+                    if (newLeft + element.offsetWidth > window.innerWidth) newLeft = window.innerWidth - element.offsetWidth;
+
+                    element.style.top = newTop + "px";
+                    element.style.left = newLeft + "px";
+                }
+
+                function closeDragElement() {
+                    document.onmouseup = null;
+                    document.onmousemove = null;
+                }
+            }
+
+            // Ініціалізація перетягування для всіх вікон
+            appWindows.forEach(win => {
+                const header = win.querySelector('.window-header');
+                makeDraggable(win, header);
+                
+                // Додаємо обробник кліку для активації
+                win.addEventListener('mousedown', () => bringWindowToFront(win));
+            });
+
+            // --- Функції Safari ---
+            function updateBrowserTab(url) {
+                const titleMap = {
+                    'https://www.apple.com': 'Apple',
+                    'https://www.google.com': 'Google',
+                    'https://www.bing.com': 'Bing',
+                    'https://www.wikipedia.org': 'Wikipedia',
+                    'https://example.com': 'Example Domain'
+                };
+                
+                const urlKey = Object.keys(titleMap).find(key => url.includes(key));
+                tabTitle.textContent = urlKey ? titleMap[urlKey] : url.substring(url.indexOf('//') + 2).split('/')[0];
+            }
+
+            function navigateToUrl(url, isHistoryNavigation = false) {
+                // Встановлюємо URL у полі
+                urlBar.value = url;
+                
+                // Оновлюємо тайтл вкладки
+                updateBrowserTab(url);
+
+                // Оновлюємо відображення контенту: або iframe, або placeholder
+                if (url.startsWith('https://')) {
+                    // Багато сайтів блокують відображення в iframe, тому показуємо заглушку
+                    safariPlaceholder.style.display = 'flex';
+                    webpage.style.display = 'none';
+                    webpage.src = url; 
+                    
+                    // У реальному браузері ви б просто змінили src iframe
+                    // webpage.src = url;
+                    // webpage.style.display = 'block';
+                    // safariPlaceholder.style.display = 'none';
+                } else {
+                    // Для інших випадків просто заглушка
+                    safariPlaceholder.style.display = 'flex';
+                    webpage.style.display = 'none';
+                }
+
+                // Керування історією
+                if (!isHistoryNavigation) {
+                    if (history[currentHistoryIndex] !== url) {
+                        history = history.slice(0, currentHistoryIndex + 1);
+                        history.push(url);
+                        currentHistoryIndex = history.length - 1;
+                    }
+                }
+                
+                // Оновлення стану кнопок назад/вперед
+                backBtn.style.opacity = currentHistoryIndex > 0 ? 1 : 0.5;
+                forwardBtn.style.opacity = currentHistoryIndex < history.length - 1 ? 1 : 0.5;
+            }
+
+            // --- Обробники подій ---
+
+            // Dock іконки
+            dockItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const windowId = item.getAttribute('data-window-id');
+                    if (windowId) {
+                        const windowElement = document.getElementById(windowId);
+                        if (windowElement && windowElement.style.display === 'flex') {
+                            bringWindowToFront(windowElement); // Активація
+                        } else {
+                            openApp(windowId); // Відкриття
+                        }
+                    }
+                });
+            });
+
+            // Іконки на робочому столі
+            desktopIcons.forEach(icon => {
+                icon.addEventListener('dblclick', () => {
+                    const windowId = icon.getAttribute('data-app');
+                    if (windowId) {
+                        openApp(windowId);
+                    }
+                });
+            });
+
+            // Кнопки закриття вікна
+            windowControls.forEach(control => {
+                control.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Запобігаємо активації вікна при кліку на кнопку
+                    const windowId = control.getAttribute('data-window');
+                    closeApp(windowId);
+                    document.querySelector('.app-name').textContent = 'Finder'; // Повертаємо Finder у Menu Bar
+                });
+            });
+            
+            // Кнопки Safari
             goBtn.addEventListener('click', () => {
                 navigateToUrl(urlBar.value);
             });
@@ -1368,523 +889,44 @@ console.log(greeter.greet());`
             });
 
             backBtn.addEventListener('click', () => {
-                webpage.contentWindow.history.back();
+                if (currentHistoryIndex > 0) {
+                    currentHistoryIndex--;
+                    navigateToUrl(history[currentHistoryIndex], true);
+                }
             });
 
             forwardBtn.addEventListener('click', () => {
-                webpage.contentWindow.history.forward();
+                if (currentHistoryIndex < history.length - 1) {
+                    currentHistoryIndex++;
+                    navigateToUrl(history[currentHistoryIndex], true);
+                }
             });
 
             refreshBtn.addEventListener('click', () => {
-                webpage.contentWindow.location.reload();
+                const currentUrl = history[currentHistoryIndex];
+                if (currentUrl.startsWith('https://')) {
+                    // Симулюємо оновлення, оскільки iframe не працює
+                    alert(`Симуляція оновлення сторінки: ${currentUrl}`);
+                    navigateToUrl(currentUrl, true);
+                }
             });
-
+            
             // Обробники для улюблених сайтів
-            document.querySelectorAll('.favorite-item').forEach(item => {
+            favoriteItems.forEach(item => {
                 item.addEventListener('click', () => {
                     const url = item.getAttribute('data-url');
                     navigateToUrl(url);
                 });
             });
 
-            /* -----------------------------
-               5. CALENDAR
-            ------------------------------ */
-            const calendarGrid = document.getElementById('calendarGrid');
-            const currentMonthElement = document.getElementById('currentMonth');
-            const prevMonthBtn = document.getElementById('prevMonthBtn');
-            const nextMonthBtn = document.getElementById('nextMonthBtn');
-            const todayBtn = document.getElementById('todayBtn');
-
-            function renderCalendar() {
-                const year = currentDate.getFullYear();
-                const month = currentDate.getMonth();
-                
-                // Оновлюємо заголовок місяця
-                const monthNames = [
-                    'Січень', 'Лютий', 'Березень', 'Квітень', 'Травень', 'Червень',
-                    'Липень', 'Серпень', 'Вересень', 'Жовтень', 'Листопад', 'Грудень'
-                ];
-                currentMonthElement.textContent = `${monthNames[month]} ${year}`;
-                
-                // Очищаємо сітку календаря
-                calendarGrid.innerHTML = '';
-                
-                // Перший день місяця
-                const firstDay = new Date(year, month, 1);
-                // Останній день місяця
-                const lastDay = new Date(year, month + 1, 0);
-                
-                // Дні попереднього місяця
-                const prevMonthLastDay = new Date(year, month, 0).getDate();
-                const startingDay = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
-                
-                // Додаємо дні попереднього місяця
-                for (let i = startingDay; i > 0; i--) {
-                    const dayElement = document.createElement('div');
-                    dayElement.className = 'calendar-day other-month';
-                    dayElement.innerHTML = `<div class="day-number">${prevMonthLastDay - i + 1}</div>`;
-                    calendarGrid.appendChild(dayElement);
-                }
-                
-                // Дні поточного місяця
-                const today = new Date();
-                for (let day = 1; day <= lastDay.getDate(); day++) {
-                    const dayElement = document.createElement('div');
-                    dayElement.className = 'calendar-day';
-                    
-                    if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
-                        dayElement.classList.add('today');
-                    }
-                    
-                    let events = '';
-                    // Додаємо тестові події
-                    if (day === 15) {
-                        events = '<div class="calendar-event">Зустріч</div>';
-                    } else if (day === 20) {
-                        events = '<div class="calendar-event">День народження</div>';
-                    }
-                    
-                    dayElement.innerHTML = `<div class="day-number">${day}</div>${events}`;
-                    calendarGrid.appendChild(dayElement);
-                }
-                
-                // Дні наступного місяця
-                const totalCells = 42; // 6 рядків по 7 днів
-                const remainingCells = totalCells - (startingDay + lastDay.getDate());
-                for (let day = 1; day <= remainingCells; day++) {
-                    const dayElement = document.createElement('div');
-                    dayElement.className = 'calendar-day other-month';
-                    dayElement.innerHTML = `<div class="day-number">${day}</div>`;
-                    calendarGrid.appendChild(dayElement);
-                }
-            }
-
-            prevMonthBtn.addEventListener('click', () => {
-                currentDate.setMonth(currentDate.getMonth() - 1);
-                renderCalendar();
-            });
-
-            nextMonthBtn.addEventListener('click', () => {
-                currentDate.setMonth(currentDate.getMonth() + 1);
-                renderCalendar();
-            });
-
-            todayBtn.addEventListener('click', () => {
-                currentDate = new Date();
-                renderCalendar();
-            });
-
-            /* -----------------------------
-               6. TRASH SYSTEM
-            ------------------------------ */
-            const trashItemsContainer = document.getElementById('trashItems');
-            const trashCountElement = document.getElementById('trashCount');
-            const emptyTrashBtn = document.getElementById('emptyTrashBtn');
-            const restoreTrashBtn = document.getElementById('restoreTrashBtn');
-
-            function moveToTrash(itemId, type, name, path) {
-                trashItems.push({
-                    id: itemId,
-                    type: type,
-                    name: name,
-                    path: path,
-                    originalData: type === 'folder' ? folders[itemId] : files[itemId]
-                });
-                
-                // Видаляємо з оригінального місця
-                if (type === 'folder') {
-                    delete folders[itemId];
-                } else {
-                    delete files[itemId];
-                }
-                
-                updateTrashDisplay();
-            }
-
-            function updateTrashDisplay() {
-                trashItemsContainer.innerHTML = '';
-                trashCountElement.textContent = trashItems.length;
-                
-                if (trashItems.length === 0) {
-                    trashItemsContainer.innerHTML = '<div style="text-align: center; color: #666; padding: 40px;">Кошик порожній</div>';
-                    return;
-                }
-                
-                trashItems.forEach((item, index) => {
-                    const trashItemElement = document.createElement('div');
-                    trashItemElement.className = 'trash-item';
-                    trashItemElement.innerHTML = `
-                        <div class="trash-item-icon ${item.type === 'folder' ? 'folder-icon' : item.type + '-file'}"></div>
-                        <div class="trash-item-info">
-                            <div class="trash-item-name">${item.name}</div>
-                            <div class="trash-item-path">${item.path}</div>
-                        </div>
-                    `;
-                    trashItemsContainer.appendChild(trashItemElement);
-                });
-            }
-
-            function emptyTrash() {
-                trashItems = [];
-                updateTrashDisplay();
-            }
-
-            function restoreFromTrash() {
-                // Відновлюємо всі елементи
-                trashItems.forEach(item => {
-                    if (item.type === 'folder') {
-                        folders[item.id] = item.originalData;
-                    } else {
-                        files[item.id] = item.originalData;
-                    }
-                });
-                
-                trashItems = [];
-                updateTrashDisplay();
-            }
-
-            emptyTrashBtn.addEventListener('click', emptyTrash);
-            restoreTrashBtn.addEventListener('click', restoreFromTrash);
-
-            /* -----------------------------
-               7. СТВОРЕННЯ ПАПОК ТА ФАЙЛІВ (оновлено для кошика)
-            ------------------------------ */
-            const filesGrid = document.getElementById('filesGrid');
-            const newFolderBtn = document.getElementById('newFolderBtn');
-            const newFileBtn = document.getElementById('newFileBtn');
-            const deleteFolderBtn = document.getElementById('deleteFolderBtn');
-            const nameModal = document.getElementById('nameModal');
-            const itemNameInput = document.getElementById('itemNameInput');
-            const fileTypeSelect = document.getElementById('fileTypeSelect');
-            const modalTitle = document.getElementById('modalTitle');
-            const cancelNameBtn = document.getElementById('cancelNameBtn');
-            const confirmNameBtn = document.getElementById('confirmNameBtn');
-
-            let currentModalType = 'folder';
-
-            function showNameModal(type = 'folder') {
-                currentModalType = type;
-                
-                if (type === 'folder') {
-                    modalTitle.textContent = 'Введіть назву папки';
-                    itemNameInput.value = `Нова папка ${folderCounter}`;
-                    fileTypeSelect.style.display = 'none';
-                } else {
-                    modalTitle.textContent = 'Введіть назву файлу';
-                    itemNameInput.value = `новий файл ${fileCounter}`;
-                    fileTypeSelect.style.display = 'block';
-                }
-                
-                nameModal.style.display = 'flex';
-                itemNameInput.focus();
-                itemNameInput.select();
-            }
-
-            function createNewFolder(name) {
-                const folderId = 'folder_' + Date.now();
-                
-                const folderElement = document.createElement('div');
-                folderElement.className = 'file-item';
-                folderElement.setAttribute('data-type', 'folder');
-                folderElement.setAttribute('data-id', folderId);
-                folderElement.innerHTML = `
-                    <div class="file-icon folder-icon"></div>
-                    <div class="file-name">${name}</div>
-                `;
-
-                folders[folderId] = {
-                    id: folderId,
-                    name: name,
-                    element: folderElement,
-                    files: [],
-                    type: 'folder'
-                };
-
-                addItemEventListeners(folderElement, folderId, 'folder');
-                filesGrid.appendChild(folderElement);
-                folderCounter++;
-            }
-
-            function createNewFile(name, type = 'html') {
-                const fileId = 'file_' + Date.now();
-                const extension = type === 'html' ? '.html' : type === 'css' ? '.css' : '.js';
-                const fullName = name.endsWith(extension) ? name : name + extension;
-                
-                const fileElement = document.createElement('div');
-                fileElement.className = 'file-item';
-                fileElement.setAttribute('data-type', 'file');
-                fileElement.setAttribute('data-id', fileId);
-                fileElement.innerHTML = `
-                    <div class="file-icon ${type}-file"></div>
-                    <div class="file-name">${fullName}</div>
-                `;
-
-                files[fileId] = {
-                    id: fileId,
-                    name: fullName,
-                    element: fileElement,
-                    type: type,
-                    content: fileTemplates[type],
-                    folder: currentProject
-                };
-
-                addItemEventListeners(fileElement, fileId, 'file');
-                filesGrid.appendChild(fileElement);
-                fileCounter++;
-                addFileToProjectList(fileId);
-            }
-
-            function addItemEventListeners(element, itemId, type) {
-                element.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    selectItem(element, itemId, type);
-                });
-
-                element.addEventListener('dblclick', () => {
-                    if (type === 'folder') {
-                        openFolder(itemId);
-                    } else {
-                        openFileInEditor(itemId);
-                    }
-                });
-
-                element.addEventListener('contextmenu', (e) => {
-                    e.preventDefault();
-                    selectItem(element, itemId, type);
-                    showContextMenu(e.pageX, e.pageY, type);
-                });
-            }
-
-            function selectItem(element, itemId, type) {
-                document.querySelectorAll('.file-item').forEach(item => {
-                    item.classList.remove('selected');
-                });
-                element.classList.add('selected');
-                selectedItem = { element, id: itemId, type };
-            }
-
-            function openFolder(folderId) {
-                const folder = folders[folderId];
-                if (folder) {
-                    currentProject = folderId;
-                    filesGrid.innerHTML = '';
-                    
-                    folder.files.forEach(fileId => {
-                        const file = files[fileId];
-                        if (file) {
-                            filesGrid.appendChild(file.element);
-                        }
-                    });
-
-                    updatePathBar(folder.name);
-                    updateProjectFilesList();
-                }
-            }
-
-            function openFileInEditor(fileId) {
-                const file = files[fileId];
-                if (file) {
-                    openApp('codeEditorWindow', 'Code Editor');
-                    openOrActivateTab(fileId);
-                }
-            }
-
-            function updatePathBar(folderName) {
-                const pathBar = document.querySelector('.path-bar');
-                pathBar.innerHTML = `
-                    <div class="path-segment">Macintosh HD</div>
-                    <div class="path-separator">></div>
-                    <div class="path-segment">Files</div>
-                    <div class="path-separator">></div>
-                    <div class="path-segment">${folderName}</div>
-                `;
-            }
-
-            function deleteSelectedItem() {
-                if (selectedItem) {
-                    const itemName = selectedItem.type === 'folder' ? 
-                        folders[selectedItem.id].name : 
-                        files[selectedItem.id].name;
-                    
-                    const itemPath = selectedItem.type === 'folder' ? 
-                        `Files/${itemName}` : 
-                        `Files/Мій проект/${itemName}`;
-                    
-                    // Переміщуємо в кошик
-                    moveToTrash(
-                        selectedItem.id, 
-                        selectedItem.type, 
-                        itemName, 
-                        itemPath
-                    );
-                    
-                    selectedItem.element.remove();
-                    selectedItem = null;
-                }
-            }
-
-            newFolderBtn.addEventListener('click', () => showNameModal('folder'));
-            newFileBtn.addEventListener('click', () => showNameModal('file'));
-            deleteFolderBtn.addEventListener('click', deleteSelectedItem);
-
-            confirmNameBtn.addEventListener('click', () => {
-                const name = itemNameInput.value.trim();
-                if (name) {
-                    if (currentModalType === 'folder') {
-                        createNewFolder(name);
-                    } else {
-                        const fileType = fileTypeSelect.value;
-                        createNewFile(name, fileType);
-                    }
-                    nameModal.style.display = 'none';
-                }
-            });
-
-            cancelNameBtn.addEventListener('click', () => {
-                nameModal.style.display = 'none';
-            });
-
-            nameModal.addEventListener('click', (e) => {
-                if (e.target === nameModal) {
-                    nameModal.style.display = 'none';
-                }
-            });
-
-            /* -----------------------------
-               8. РЕДАКТОР КОДУ (залишається без змін)
-            ------------------------------ */
-            // ... (код редактора залишається таким самим) ...
-
-            /* -----------------------------
-               9. КОНТЕКСТНЕ МЕНЮ (оновлено для кошика)
-            ------------------------------ */
-            const contextMenu = document.getElementById('contextMenu');
-            const contextNewFolder = document.getElementById('contextNewFolder');
-            const contextNewFile = document.getElementById('contextNewFile');
-            const contextOpen = document.getElementById('contextOpen');
-            const contextDelete = document.getElementById('contextDelete');
-            const contextRename = document.getElementById('contextRename');
-
-            function showContextMenu(x, y, type) {
-                contextMenu.style.left = x + 'px';
-                contextMenu.style.top = y + 'px';
-                contextMenu.style.display = 'block';
-                
-                contextOpen.style.display = selectedItem ? 'block' : 'none';
-                contextDelete.style.display = selectedItem ? 'block' : 'none';
-                contextRename.style.display = selectedItem ? 'block' : 'none';
-            }
-
-            function hideContextMenu() {
-                contextMenu.style.display = 'none';
-            }
-
-            contextNewFolder.addEventListener('click', () => {
-                showNameModal('folder');
-                hideContextMenu();
-            });
-
-            contextNewFile.addEventListener('click', () => {
-                showNameModal('file');
-                hideContextMenu();
-            });
-
-            contextOpen.addEventListener('click', () => {
-                if (selectedItem) {
-                    if (selectedItem.type === 'folder') {
-                        openFolder(selectedItem.id);
-                    } else {
-                        openFileInEditor(selectedItem.id);
-                    }
-                }
-                hideContextMenu();
-            });
-
-            contextDelete.addEventListener('click', () => {
-                deleteSelectedItem();
-                hideContextMenu();
-            });
-
-            contextRename.addEventListener('click', () => {
-                if (selectedItem) {
-                    const newName = prompt('Введіть нову назву:', 
-                        selectedItem.type === 'folder' ? 
-                        folders[selectedItem.id].name : 
-                        files[selectedItem.id].name.replace(/\.[^/.]+$/, "")
-                    );
-                    if (newName && newName.trim()) {
-                        if (selectedItem.type === 'folder') {
-                            folders[selectedItem.id].name = newName.trim();
-                        } else {
-                            const file = files[selectedItem.id];
-                            const extension = file.type === 'html' ? '.html' : file.type === 'css' ? '.css' : '.js';
-                            file.name = newName.trim() + extension;
-                        }
-                        selectedItem.element.querySelector('.file-name').textContent = 
-                            selectedItem.type === 'folder' ? newName.trim() : newName.trim() + 
-                            (selectedItem.type === 'file' ? (files[selectedItem.id].type === 'html' ? '.html' : 
-                            files[selectedItem.id].type === 'css' ? '.css' : '.js') : '');
-                    }
-                }
-                hideContextMenu();
-            });
-
-            document.addEventListener('click', hideContextMenu);
-
-            filesGrid.addEventListener('contextmenu', (e) => {
-                if (!e.target.closest('.file-item')) {
-                    e.preventDefault();
-                    selectedItem = null;
-                    showContextMenu(e.pageX, e.pageY, 'empty');
-                }
-            });
-
-            /* -----------------------------
-               10. ПЕРЕМІЩЕННЯ ВІКОН
-            ------------------------------ */
-            document.querySelectorAll('.window-header').forEach(header => {
-                header.addEventListener('mousedown', (e) => {
-                    if (!e.target.classList.contains('window-control')) {
-                        isDragging = true;
-                        const window = header.parentElement;
-                        dragOffset.x = e.clientX - window.offsetLeft;
-                        dragOffset.y = e.clientY - window.offsetTop;
-                    }
-                });
-            });
-
-            document.addEventListener('mousemove', (e) => {
-                if (isDragging) {
-                    const activeWindow = document.querySelector('.app-window[style*="display: flex"]');
-                    if (activeWindow) {
-                        activeWindow.style.left = (e.clientX - dragOffset.x) + 'px';
-                        activeWindow.style.top = (e.clientY - dragOffset.y) + 'px';
-                        activeWindow.style.transform = 'none';
-                    }
-                }
-            });
-
-            document.addEventListener('mouseup', () => {
-                isDragging = false;
-            });
-
-            /* -----------------------------
-               11. ПЛАВНА ПОЯВА ІНТЕРФЕЙСУ
-            ------------------------------ */
-            document.body.style.opacity = '0';
-            setTimeout(() => {
-                document.body.style.transition = 'opacity 1.2s ease';
-                document.body.style.opacity = '1';
-            }, 200);
-
-            // Створюємо стартовий проект
-            setTimeout(() => {
-                createNewFolder('Мій проект');
-                createNewFile('index', 'html');
-                createNewFile('style', 'css');
-                createNewFile('script', 'js');
-            }, 500);
+            // --- Ініціалізація ---
+            
+            // Запускаємо оновлення часу
+            updateTime();
+            setInterval(updateTime, 1000);
+            
+            // Відкриваємо Finder при старті
+            openApp('finderWindow');
         });
     </script>
 </body>
