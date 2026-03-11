@@ -256,10 +256,32 @@
             z-index: 10;
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
+            /* початковий стан для анімацій */
+            transform: scale(0.9);
+            opacity: 0;
         }
 
         .app-window.active {
             z-index: 20;
+        }
+
+        /* === Анімації вікон === */
+        @keyframes windowOpen {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes windowClose {
+            from { opacity: 1; transform: scale(1); }
+            to { opacity: 0; transform: scale(0.8); }
+        }
+
+        .app-window.opening {
+            animation: windowOpen 0.25s ease-out forwards;
+        }
+
+        .app-window.closing {
+            animation: windowClose 0.25s ease-in forwards;
         }
 
         .window-header {
@@ -826,10 +848,22 @@
             function openApp(windowId) {
                 const windowElement = document.getElementById(windowId);
                 if (windowElement) {
+                    // демонструємо вікно з анімацією відкриття
+                    windowElement.classList.remove('closing');
                     windowElement.style.display = 'flex';
+                    windowElement.classList.add('opening');
+
                     bringWindowToFront(windowElement);
                     document.querySelector(`#dock .dock-item[data-window-id="${windowId}"] .dot`).classList.add('active');
                     document.querySelector('.app-name').textContent = windowElement.querySelector('.window-title').textContent;
+                    
+                    // прибираємо клас після завершення анімації
+                    windowElement.addEventListener('animationend', function handler(ev) {
+                        if (ev.animationName === 'windowOpen') {
+                            windowElement.classList.remove('opening');
+                        }
+                        windowElement.removeEventListener('animationend', handler);
+                    });
                     
                     // Спеціальна логіка для Safari при відкритті
                     if (windowId === 'safariWindow') {
@@ -841,13 +875,22 @@
             function closeApp(windowId) {
                 const windowElement = document.getElementById(windowId);
                 if (windowElement) {
-                    windowElement.style.display = 'none';
-                    document.querySelector(`#dock .dock-item[data-window-id="${windowId}"] .dot`).classList.remove('active');
-                    
-                    // Повертаємо назву Finder у Menu Bar, якщо це було активне вікно
-                    if (windowElement.classList.contains('active')) {
-                        document.querySelector('.app-name').textContent = 'Finder';
-                    }
+                    // Додаємо клас закриття, після анімації сховаємо
+                    windowElement.classList.add('closing');
+                    windowElement.addEventListener('animationend', function handler(ev) {
+                        if (ev.animationName === 'windowClose') {
+                            windowElement.style.display = 'none';
+                            windowElement.classList.remove('active');
+                            document.querySelector(`#dock .dock-item[data-window-id="${windowId}"] .dot`).classList.remove('active');
+                            
+                            // Повертаємо назву Finder у Menu Bar, якщо це було активне вікно
+                            if (windowElement.classList.contains('active')) {
+                                document.querySelector('.app-name').textContent = 'Finder';
+                            }
+                            windowElement.classList.remove('closing');
+                        }
+                        windowElement.removeEventListener('animationend', handler);
+                    });
                 }
             }
 
