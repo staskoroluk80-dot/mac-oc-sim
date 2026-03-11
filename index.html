@@ -112,6 +112,11 @@
             background: rgba(255, 255, 255, 0.1);
             transform: scale(1.05);
         }
+        .desktop-icon.dragging {
+            opacity: 0.7;
+            cursor: grabbing;
+            z-index: 50;
+        }
 
         .desktop-icon.selected {
             background: rgba(0, 122, 255, 0.3);
@@ -825,6 +830,8 @@
             let maxZIndex = 20;
             let history = ['https://www.apple.com'];
             let currentHistoryIndex = 0;
+            // об&#39;єкт для збереження стану згорнутих вікон
+            const minimizedWindows = {};
             
             // --- Функції керування часом ---
             function updateTime() {
@@ -845,9 +852,76 @@
                 windowElement.classList.add('active');
             }
 
+            // згорнути вікно до Dock
+            function minimizeApp(windowId) {
+                const win = document.getElementById(windowId);
+                if (!win) return;
+                // зберігаємо позицію + розміри для відновлення
+                minimizedWindows[windowId] = {
+                    top: win.style.top,
+                    left: win.style.left,
+                    width: win.offsetWidth,
+                    height: win.offsetHeight
+                };
+                const dockItem = document.querySelector(`#dock .dock-item[data-window-id="${windowId}"]`);
+                if (dockItem) {
+                    const dockRect = dockItem.getBoundingClientRect();
+                    const winRect = win.getBoundingClientRect();
+                    const deltaX = dockRect.left + dockRect.width/2 - (winRect.left + winRect.width/2);
+                    const deltaY = dockRect.top + dockRect.height/2 - (winRect.top + winRect.height/2);
+                    win.style.transition = 'transform 0.3s ease-in, opacity 0.3s ease-in';
+                    win.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(0.1)`;
+                    win.style.opacity = '0';
+                    setTimeout(() => {
+                        win.style.display = 'none';
+                        win.style.transform = '';
+                        win.style.opacity = '';
+                        win.style.transition = '';
+                        win.classList.remove('active');
+                        document.querySelector(`#dock .dock-item[data-window-id="${windowId}"] .dot`).classList.remove('active');
+                    }, 300);
+                } else {
+                    win.style.display = 'none';
+                    win.classList.remove('active');
+                }
+            }
+
+            // відновити вікно з Dock
+            function restoreApp(windowId) {
+                const win = document.getElementById(windowId);
+                if (!win) return;
+                if (minimizedWindows[windowId]) {
+                    const { top, left, width, height } = minimizedWindows[windowId];
+                    win.style.display = 'flex';
+                    win.style.top = top;
+                    win.style.left = left;
+                    win.style.width = width + 'px';
+                    win.style.height = height + 'px';
+                    // демонструємо анімацію від dock
+                    win.style.transform = 'scale(0.1)';
+                    win.style.opacity = '0';
+                    bringWindowToFront(win);
+                    document.querySelector(`#dock .dock-item[data-window-id="${windowId}"] .dot`).classList.add('active');
+                    // примусове перерахування для тригера transition
+                    win.getBoundingClientRect();
+                    win.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
+                    win.style.transform = '';
+                    win.style.opacity = '';
+                    win.addEventListener('transitionend', function handler() {
+                        win.style.transition = '';
+                        win.removeEventListener('transitionend', handler);
+                    });
+                    delete minimizedWindows[windowId];
+                } else {
+                    openApp(windowId);
+                }
+            }
+
             function openApp(windowId) {
                 const windowElement = document.getElementById(windowId);
                 if (windowElement) {
+                    // якщо це вікно було згорнуте, видаляємо запис
+                    delete minimizedWindows[windowId];
                     // демонструємо вікно з анімацією відкриття
                     windowElement.classList.remove('closing');
                     windowElement.style.display = 'flex';
@@ -946,6 +1020,67 @@
                 win.addEventListener('mousedown', () => bringWindowToFront(win));
             });
 
+            // --- Перетягування значків робочого столу ---
+            const desktop = document.getElementById('desktop');
+            desktopIcons.forEach(icon => {
+                // встановлюємо позицію відповідно до початкового розташування
+                const rect = icon.getBoundingClientRect();
+                const parentRect = desktop.getBoundingClientRect();
+                icon.style.position = 'absolute';
+                icon.style.left = (rect.left - parentRect.left) + 'px';
+                icon.style.top = (rect.top - parentRect.top) + 'px';
+
+                makeIconDraggable(icon);
+            });
+
+            function makeIconDraggable(icon) {
+                let offsetX = 0, offsetY = 0;
+                let dragging = false;
+
+                icon.addEventListener('mousedown', startDrag);
+
+                function startDrag(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    dragging = true;
+                    const rect = icon.getBoundingClientRect();
+                    offsetX = e.clientX - rect.left;
+                    offsetY = e.clientY - rect.top;
+                    icon.classList.add('dragging');
+                    document.addEventListener('mousemove', doDrag);
+                    document.addEventListener('mouseup', stopDrag);
+                }
+
+                function doDrag(e) {
+                    if (!dragging) return;
+                    const parentRect = desktop.getBoundingClientRect();
+                    let newLeft = e.clientX - parentRect.left - offsetX;
+                    let newTop = e.clientY - parentRect.top - offsetY;
+                    // обмеження у межах робочого столу
+                    newLeft = Math.max(0, Math.min(newLeft, parentRect.width - icon.offsetWidth));
+                    newTop = Math.max(0, Math.min(newTop, parentRect.height - icon.offsetHeight));
+                    icon.style.left = newLeft + 'px';
+                    icon.style.top = newTop + 'px';
+                }
+
+                function stopDrag() {
+                    dragging = false;
+                    icon.classList.remove('dragging');
+                    document.removeEventListener('mousemove', doDrag);
+                    document.removeEventListener('mouseup', stopDrag);
+                }
+            }
+
+            // обробники для кнопок мінімізації
+            const minimizeControls = document.querySelectorAll('.window-control.minimize');
+            minimizeControls.forEach(control => {
+                control.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const windowId = control.closest('.app-window').id;
+                    minimizeApp(windowId);
+                });
+            });
+
             // --- Функції Safari ---
             function updateBrowserTab(url) {
                 const titleMap = {
@@ -1009,7 +1144,8 @@
                         if (windowElement && windowElement.style.display === 'flex') {
                             bringWindowToFront(windowElement); // Активація
                         } else {
-                            openApp(windowId); // Відкриття
+                            // якщо вікно було згорнуте, відновимо
+                            restoreApp(windowId);
                         }
                     }
                 });
