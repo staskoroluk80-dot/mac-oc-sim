@@ -1022,14 +1022,18 @@
 
             // --- Перетягування значків робочого столу ---
             const desktop = document.getElementById('desktop');
+            // спочатку збираємо координати для кожної іконки, поки вони ще у флекс-контейнері
+            const iconPositions = [];
             desktopIcons.forEach(icon => {
-                // встановлюємо позицію відповідно до початкового розташування
                 const rect = icon.getBoundingClientRect();
                 const parentRect = desktop.getBoundingClientRect();
+                iconPositions.push({ icon, left: rect.left - parentRect.left, top: rect.top - parentRect.top });
+            });
+            // потім застосовуємо абсолютне позиціювання
+            iconPositions.forEach(({icon, left, top}) => {
                 icon.style.position = 'absolute';
-                icon.style.left = (rect.left - parentRect.left) + 'px';
-                icon.style.top = (rect.top - parentRect.top) + 'px';
-
+                icon.style.left = left + 'px';
+                icon.style.top = top + 'px';
                 makeIconDraggable(icon);
             });
 
